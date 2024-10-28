@@ -72,6 +72,7 @@ const submit = async () => {
     description: data.description,
     cancelPolicy: data.cancelPolicy,
     location: data.location,
+    location_link: data.location_link,
     type: data.type,
     cost: JSON.stringify([data.cost]),
     cost_interview: JSON.stringify(cost_interview.value),
@@ -170,10 +171,10 @@ const submit = async () => {
                 ></v-text-field>
                 <v-text-field
                   prepend-inner-icon="mdi-map-marker"
-                  :rules="[() => !!data.location || 'Campo requerido']"
+                  :rules="[() => !!data.location_link|| 'Campo requerido']"
                   required
                   variant="outlined"
-                  v-model="data.location"
+                  v-model="data.location_link"
                   label="Link Google Maps"
                 ></v-text-field>
                 <v-textarea

@@ -2,6 +2,7 @@ import type { CostEventInterface } from "./CostEventInterface"
 
 export interface EventInteface{
     name?: string,
+    location_link?:string
     location?: string
     datetime_start?: string
     datetime_end?: string
