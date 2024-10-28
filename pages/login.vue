@@ -1,11 +1,10 @@
 <script setup lang="ts">
-definePageMeta({ middleware: "guest"});
+definePageMeta({ middleware: "guest" });
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
 Amplify.configure(outputs);
 
-
-import { signIn } from "aws-amplify/auth";
+import { signIn, signOut } from "aws-amplify/auth";
 import { ref } from "vue";
 import "vue3-toastify/dist/index.css";
 
@@ -15,16 +14,17 @@ const credentials = ref({
 });
 
 const state = ref("");
+const isLoading = ref(false);
 const show1 = ref(false);
 const onSubmit = async () => {
   try {
-    const { isSignedIn } = await signIn({
+    isLoading.value = true;
+    await signOut();
+    await signIn({
       username: credentials.value.username,
       password: credentials.value.password,
     });
-    if (isSignedIn) {
-      navigateTo("/");
-    }
+    await navigateTo("/");
   } catch (error) {
     console.log(error);
     state.value = "error";
@@ -34,6 +34,7 @@ const onSubmit = async () => {
 </script>
 
 <template>
+  <loading :isLoading="isLoading"/>
   <div class="flex flex-col w-screen h-screen">
     <div class="h-44 lg:h-60 relative">
       <div class="absolute w-full h-full flex">

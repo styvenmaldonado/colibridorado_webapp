@@ -1,16 +1,11 @@
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
-import { getCurrentUser } from "aws-amplify/auth";
+import { isLogin } from "~/libs/isLogin";
 
 Amplify.configure(outputs);
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  try {
-    const isLogin = await getCurrentUser();
-    if (isLogin) {
-      return navigateTo("/");
-    }
-  } catch (error) {
-    return navigateTo("/login");
+  if (await isLogin()) {
+    return navigateTo("/");
   }
 });
