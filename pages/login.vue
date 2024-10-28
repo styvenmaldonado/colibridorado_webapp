@@ -4,19 +4,19 @@ definePageMeta({
   auth: { authenticatedRedirectTo: "/" },
 });
 
-import { Amplify } from "aws-amplify";
-import outputs from "../amplify_outputs.json";
 import { ref } from "vue";
 import "vue3-toastify/dist/index.css";
 
-Amplify.configure(outputs);
 
 
-const { signIn } = useAuth();
+const { signIn, sessionToken } = useAuth();
 const credentials = ref({
   username: "",
   password: "",
 });
+
+
+console.log(sessionToken)
 const state = ref("");
 const show1 = ref(false);
 const onSubmit = async () => {
