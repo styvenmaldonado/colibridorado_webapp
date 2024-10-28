@@ -166,13 +166,30 @@ const submit = async () => {
                   required
                   variant="outlined"
                   v-model="data.location"
-                  label="Localización"
+                  label="Ubicación"
+                ></v-text-field>
+                <v-text-field
+                  prepend-inner-icon="mdi-map-marker"
+                  :rules="[() => !!data.location || 'Campo requerido']"
+                  required
+                  variant="outlined"
+                  v-model="data.location"
+                  label="Link Google Maps"
                 ></v-text-field>
                 <v-textarea
                   v-model="data.description"
                   label="Descripción Retiro y/o Ceremonia"
                   variant="outlined"
                 ></v-textarea>
+                <v-textarea
+                  v-model="data.cancelPolicy"
+                  label="Políticas de cancelación"
+                  variant="outlined"
+                ></v-textarea>
+                <div class="py-5 flex gap-2">
+                  <v-icon>mdi-lock-plus-outline</v-icon>
+                  <p class="font-bold">Información Privada</p>
+                </div>
                 <v-textarea
                   v-model="instructions.instructions"
                   label="Instrucción Retiro y/o Ceremonia"
@@ -181,11 +198,6 @@ const submit = async () => {
                 <v-textarea
                   v-model="instructions.recommendations"
                   label="Recomendación Retiro y/o Ceremonia"
-                  variant="outlined"
-                ></v-textarea>
-                <v-textarea
-                  v-model="data.cancelPolicy"
-                  label="Políticas de cancelación"
                   variant="outlined"
                 ></v-textarea>
               </div>

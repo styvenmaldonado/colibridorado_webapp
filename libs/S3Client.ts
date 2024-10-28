@@ -4,18 +4,21 @@ import {
   type PutObjectCommandInput,
 } from "@aws-sdk/client-s3";
 
-require("dotenv").config();
+interface Credentials {
+  accessKeyId: string,
+  secretAccessKey: string
+}
 
-const client = new S3Client({
-  credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
-  },
-  region: "us-east-2",
-});
-
-export const uploadObject = async (input: PutObjectCommandInput) => {
+export const uploadObject = async (c: Credentials, input: PutObjectCommandInput) => {
   const comand = new PutObjectCommand(input);
+
+  const client = new S3Client({
+    credentials: {
+      accessKeyId: c.accessKeyId ,
+      secretAccessKey: c.secretAccessKey,
+    },
+    region: "us-east-2",
+  });
   const response = await client.send(comand);
   return response;
 };

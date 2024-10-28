@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { useDropzone } from "vue3-dropzone";
 import type { FileRejectReason } from "vue3-dropzone";
-import { uploadData } from "aws-amplify/storage";
 import { v4 as uuidv4 } from "uuid";
-import { uploadObject } from "~/libs/S3Client";
 import { MimeTypeToExtention } from "~/libs/MimeType";
 
 const emits = defineEmits(["submit"]);
 
 const files: Ref<File[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
+const runtimeConfig = useRuntimeConfig();
 
 const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
 function onDrop(acceptFiles: File[], rejectReasons: FileRejectReason[]) {
@@ -20,17 +19,30 @@ const view = (file: File) => {
   return URL.createObjectURL(file);
 };
 
-const uploadFiles = () => {
+async function convertToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+}
+
+const uploadFiles = async () => {
   loading.value = true;
-  const photos:string[] = files.value.map((file, index) => {
+  const photos: string[] = files.value.map((file, index) => {
     const id: string = `media/${uuidv4()}.${MimeTypeToExtention(file.type)}`;
-    uploadObject({
-      Bucket: "colibridoradobucket",
-      Body: file,
-      ContentType: file.type,
-      Key: id,
-    }).then()
-    return id
+    convertToBase64(file).then((base64) => {
+      fetch("http://localhost:3000/api/s3", {
+        body: JSON.stringify({
+          id,
+          base64,
+          'Content-Type': file.type
+        }),
+        method: "POST",
+      });
+    });
+    return id;
   });
   emits("submit", photos);
   loading.value = false;

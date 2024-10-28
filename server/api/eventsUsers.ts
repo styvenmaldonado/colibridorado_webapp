@@ -6,15 +6,16 @@ export default defineEventHandler(async (event) => {
   const Events = await getAllEvents()
 
   
-
+  console.log(process.env.NUXT_S3_ACCESS_KEY_ID)
   const response = EventsUser?.map(c => ({
     ...c,
     events: Events?.find(p => p.id == c.eventId),
     users: Users?.find(p => p.id == c.userId)
   }))
   
+  const { offset, limit } = getQuery(event)
   return {
-    e: getQuery(event),
+    
     count: response?.length,
     data: response?.splice(0,50)
   }

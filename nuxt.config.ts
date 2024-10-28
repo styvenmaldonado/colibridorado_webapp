@@ -21,12 +21,6 @@ export default defineNuxtConfig({
     cookie: "cookie",
   },
   runtimeConfig: {
-    secret: {
-      s3: {
-        accessKeyId: process.env.NUXT_S3_ACCESS_KEY_ID,
-        secretAccessKey: process.env.NUXT_S3_SECRET_ACCESS_KEY,
-      },
-    },
     authJs: {
       secret: process.env.NUXT_NEXTAUTH_SECRET, // You can generate one with `openssl rand -base64 32`
     },

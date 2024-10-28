@@ -54,6 +54,7 @@ const schema = a.schema({
       type: a.string(),
       name: a.string(),
       location: a.string(),
+      location_link: a.string(),
       datetime_start: a.datetime(),
       datetime_end: a.datetime(),
       description: a.string(),

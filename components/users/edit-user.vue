@@ -44,8 +44,6 @@ const data = reactive({
   address: user.value?.address,
   email: user.value?.email,
   phone: user.value?.phone_number,
-  password: "",
-  confirmPassword: "",
   city: user.value?.city,
   country: user.value?.country,
   rol: user.value?.rol,
@@ -55,13 +53,8 @@ const data = reactive({
 const submit = async (event: SubmitEventPromise) => {
   const { valid } = await event;
   if (!valid) return;
-  const id = uuidv4();
-
-
-
-    const { errors } = await client.models.Users.update({
-    id: id,
-    phone_number: data.phone, 
+  const { errors } = await client.models.Users.update({
+    id: route.query.id?.toString() || "",
     given_name: data.givenName,
     family_name: data.familyName,
     birthdate: data.birthdate,
@@ -71,10 +64,10 @@ const submit = async (event: SubmitEventPromise) => {
     tipo_documento: data.tipo_documento,
     numero_documento: data.numero_documento,
     email: data.email,
-    //rol: JSON.stringify({roles: data.userType}),
+    rol: JSON.stringify(data.userType),
   });
 
-console.log(errors);
+  console.log(errors);
   if (!errors) {
     toast("Usuario Actualizado con Exito!", {
       theme: "colored",
@@ -93,10 +86,6 @@ console.log(errors);
       dangerouslyHTMLString: true,
     });
   }
-
-
-
-  
 };
 </script>
 <template>
