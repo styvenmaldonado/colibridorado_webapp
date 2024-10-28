@@ -26,6 +26,7 @@ const onSubmit = async () => {
     });
     await navigateTo("/");
   } catch (error) {
+    isLoading.value = false;
     console.log(error);
     state.value = "error";
     credentials.value.password = "";

@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { deleteUser } from "aws-amplify/auth";
 import { toast } from "vue3-toastify";
+import { useListUserTypes } from "~/hooks/userTypes";
 import { client } from "~/libs/AmplifyDataClient";
 
 
@@ -15,9 +16,10 @@ export default {
   }),
   methods: {
     async loadItems() {
-      const { data } = await client.models.UsersTypes.list();
+      const { data } = await useListUserTypes();
       // @ts-ignore: serverItems never[]
-      this.serverItems.push(...data);
+      this.serverItems.push(...data.value?.data);
+      this.totalItems = data.value?.count || 0
       this.loading = false;
     },
     async deleteUser(value: number) {

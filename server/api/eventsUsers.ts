@@ -1,12 +1,10 @@
-import { client } from "~/libs/AmplifyDataClient";
+import { getAllEvents, getAllEventUsers, getAllUsers } from "~/libs/EntitiesDataClient";
 
 export default defineEventHandler(async (event) => {
   const EventsUser = await getAllEventUsers()
   const Users = await getAllUsers()
   const Events = await getAllEvents()
 
-  
-  console.log(process.env.NUXT_S3_ACCESS_KEY_ID)
   const response = EventsUser?.map(c => ({
     ...c,
     events: Events?.find(p => p.id == c.eventId),
@@ -21,48 +19,6 @@ export default defineEventHandler(async (event) => {
   }
 });
 
-
-
-const getAllEventUsers = async () => {
-  let _nextToken: any;
-  let _data;
-  while (_nextToken !== "") {
-    const { data, nextToken } = await client.models.EventsUser.list({
-      nextToken: _nextToken,
-    });
-    _data ? (_data = [_data, ...data]) : (_data = data);
-    nextToken ? (_nextToken = nextToken) : (_nextToken = "");
-  }
-  return _data;
-}
-
-
-const getAllUsers = async () => {
-  let _nextToken: any;
-  let _data;
-  while (_nextToken !== "") {
-    const { data, nextToken } = await client.models.Users.list({
-      nextToken: _nextToken,
-    });
-    _data ? (_data = [_data, ...data]) : (_data = data);
-    nextToken ? (_nextToken = nextToken) : (_nextToken = "");
-  }
-  return _data;
-}
-
-
-const getAllEvents = async () => {
-  let _nextToken: any;
-  let _data;
-  while (_nextToken !== "") {
-    const { data, nextToken } = await client.models.Events.list({
-      nextToken: _nextToken,
-    });
-    _data ? (_data = [_data, ...data]) : (_data = data);
-    nextToken ? (_nextToken = nextToken) : (_nextToken = "");
-  }
-  return _data;
-}
 
 
 
