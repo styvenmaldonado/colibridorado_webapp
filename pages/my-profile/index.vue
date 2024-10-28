@@ -1,19 +1,16 @@
 <script setup lang="ts">
 definePageMeta({ middleware: "auth", auth: { guestRedirectTo: "/login" } });
-import { signOut as signOutAmplify } from "aws-amplify/auth";
-const { signOut } = useAuth()
+import { signOut } from "aws-amplify/auth";
 import ButtonNavigation from "~/layouts/ButtonNavigation.vue";
 
-
 import { Amplify } from "aws-amplify";
-import outputs from '../../amplify_outputs.json';
+import outputs from "../../amplify_outputs.json";
 
 Amplify.configure(outputs);
 
-
 const logOut = async () => {
-  await signOutAmplify();
-  await signOut()
+  await signOut();
+  navigateTo("/login");
 };
 
 </script>

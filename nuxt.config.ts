@@ -19,7 +19,7 @@ export default defineNuxtConfig({
   ],
   alias: {
     cookie: "cookie",
-  },
+  }, 
     // Optional default config
    authJs: {
   //    verifyClientOnEveryRequest: true,

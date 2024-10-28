@@ -1,30 +1,30 @@
 <script setup lang="ts">
-definePageMeta({
-  middleware: "guest-only",
-  auth: { authenticatedRedirectTo: "/" },
-});
+definePageMeta({ middleware: "guest"});
+import { Amplify } from "aws-amplify";
+import outputs from "../amplify_outputs.json";
+Amplify.configure(outputs);
 
+
+import { signIn } from "aws-amplify/auth";
 import { ref } from "vue";
 import "vue3-toastify/dist/index.css";
 
-
-
-const { signIn, sessionToken } = useAuth();
 const credentials = ref({
   username: "",
   password: "",
 });
 
-
-console.log(sessionToken)
 const state = ref("");
 const show1 = ref(false);
 const onSubmit = async () => {
   try {
-    await signIn("credentials", {
+    const { isSignedIn } = await signIn({
       username: credentials.value.username,
       password: credentials.value.password,
     });
+    if (isSignedIn) {
+      navigateTo("/");
+    }
   } catch (error) {
     console.log(error);
     state.value = "error";

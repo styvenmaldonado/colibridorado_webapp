@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ middleware: "guest-only", auth: { authenticatedRedirectTo: "/" } })
+definePageMeta({ middleware: "guests"});
 
 import { Amplify } from "aws-amplify";
 import outputs from '../amplify_outputs.json';
