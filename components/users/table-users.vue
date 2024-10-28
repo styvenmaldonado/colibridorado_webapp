@@ -25,8 +25,12 @@ const handleClick = async (e: PointerEvent, row: any) => {
 
 watch(
   () => route.query,
-  async (newId) => {
-    console.log(newId);
+  async (value) => {
+    model.loading = true;
+    const { data } = await useListUser(value);
+    //@ts-ignore
+    model.serverItems.push(...data.value?.data);
+    model.loading = false;
   }
 );
 </script>
