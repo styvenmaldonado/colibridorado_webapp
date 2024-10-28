@@ -6,15 +6,11 @@ definePageMeta({
 
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
-import { getCurrentUser, signOut } from "aws-amplify/auth";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import "vue3-toastify/dist/index.css";
 
 Amplify.configure(outputs);
 
-onMounted(async () => {
-  await signOut({ global: true });
-});
 
 const { signIn } = useAuth();
 const credentials = ref({
