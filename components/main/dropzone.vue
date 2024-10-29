@@ -33,7 +33,7 @@ const uploadFiles = async () => {
   const photos: string[] = files.value.map((file, index) => {
     const id: string = `media/${uuidv4()}.${MimeTypeToExtention(file.type)}`;
     convertToBase64(file).then((base64) => {
-      fetch("http://localhost:3000/api/s3", {
+      fetch("/api/s3", {
         body: JSON.stringify({
           id,
           base64,
