@@ -19,6 +19,7 @@ const loadItems = async () => {
 };
 
 const handleClick = async (e: PointerEvent, row: any) => {
+  model.loading = true
   const { id } = model.serverItems[row?.index || 0];
   await navigateTo(`/users/detail/${id}`);
 };
@@ -35,6 +36,7 @@ watch(
 );
 </script>
 <template>
+  <loading :is-loading="model.loading"/>
   <v-data-table-server
     v-model:items-per-page="model.itemsPerPage"
     :headers="[
