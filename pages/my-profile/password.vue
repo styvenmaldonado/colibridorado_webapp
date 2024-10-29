@@ -31,10 +31,11 @@ const submit = async (event: SubmitEventPromise) => {
       autoClose: false,
       dangerouslyHTMLString: true,
     });
+    navigateTo("/");
   } catch (error) {
     loading.value = false;
     console.log(error);
-    toast("Contraseña Incorrecta!", {
+    toast("Contraseña Antigüa Incorrecta!", {
       theme: "colored",
       type: "error",
       position: "top-center",
@@ -48,7 +49,7 @@ const submit = async (event: SubmitEventPromise) => {
 };
 </script>
 <template>
-  <loading :is-loading="loading" />
+  <loading :isLoading="loading" />
   <div class="flex flex-col w-screen h-screen">
     <div class="fixed bottom-0 left-0">
       <ButtonNavigation />
