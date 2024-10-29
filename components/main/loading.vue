@@ -4,7 +4,6 @@ defineProps<{
 }>();
 </script>
 <template>
-  <Teleport to="body" v-if="isLoading">
     <div
       v-if="isLoading"
       style="z-index: 9999"
@@ -19,5 +18,4 @@ defineProps<{
         ></v-progress-circular>
       </div>
     </div>
-  </Teleport>
 </template>

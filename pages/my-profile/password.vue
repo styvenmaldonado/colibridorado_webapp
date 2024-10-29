@@ -7,7 +7,7 @@ import type { SubmitEventPromise } from "vuetify";
 import ButtonNavigation from "~/layouts/ButtonNavigation.vue";
 import "vue3-toastify/dist/index.css";
 
-const loading = ref(false);
+const isLoading = ref(false);
 
 const password = reactive({
   oldPassword: "",
@@ -17,7 +17,7 @@ const password = reactive({
 
 const submit = async (event: SubmitEventPromise) => {
   try {
-    loading.value = true;
+    isLoading.value = true;
     const { valid } = await event;
     if (!valid) return;
     await updatePassword({
@@ -33,7 +33,7 @@ const submit = async (event: SubmitEventPromise) => {
     });
     navigateTo("/");
   } catch (error) {
-    loading.value = false;
+    isLoading.value = false;
     console.log(error);
     toast("Contraseña Antigüa Incorrecta!", {
       theme: "colored",
@@ -49,7 +49,7 @@ const submit = async (event: SubmitEventPromise) => {
 };
 </script>
 <template>
-  <loading :isLoading="loading" />
+  <loading :isLoading="isLoading"/>
   <div class="flex flex-col w-screen h-screen">
     <div class="fixed bottom-0 left-0">
       <ButtonNavigation />
