@@ -6,7 +6,6 @@ import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
 import { getCountryDataList } from "countries-list";
-import { client } from "~/libs/AmplifyDataClient";
 import type { SubmitEventPromise } from "vuetify";
 import { useGetUser, useUpdateUser } from "~/hooks/users";
 import { useListUserTypes } from "~/hooks/userTypes";
@@ -42,6 +41,7 @@ const data = reactive({
   city: user.value?.city,
   country: user.value?.country,
   userType: JSON.parse(user.value?.rol?.toString() || ""),
+  permissions: user.value?.permissions
 });
 
 const submit = async (event: SubmitEventPromise) => {
@@ -59,7 +59,8 @@ const submit = async (event: SubmitEventPromise) => {
     numero_documento: data.numero_documento || "",
     email: data.email || "",
     rol: JSON.stringify(data.userType),
-    phone_number: data.phone || ""
+    phone_number: data.phone || "",
+    permissions: data.permissions || ""
   });
 
   if (!error.value) {
@@ -88,6 +89,7 @@ const submit = async (event: SubmitEventPromise) => {
     style="z-index: 9999"
     class="fixed w-screen h-screen bg-gray-600 opacity-45 flex"
   >
+  
     <div class="m-auto">
       <v-progress-circular indeterminate :size="76"></v-progress-circular>
     </div>
@@ -188,6 +190,7 @@ const submit = async (event: SubmitEventPromise) => {
               <v-select
                 variant="outlined"
                 label="Rol"
+                v-model="data.permissions"
                 :items="['', 'SUPER ADMIN', 'ADMIN']"
               ></v-select>
               <v-autocomplete

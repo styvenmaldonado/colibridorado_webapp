@@ -1,16 +1,15 @@
 <script setup lang="ts">
 definePageMeta({ middleware: "authentication" });
-import ButtonNavigation from "~/layouts/ButtonNavigation.vue";
 import { format } from "date-fns";
 import { useListEvents } from "~/hooks/events";
+import { useUserInfo } from "~/hooks/users";
 
+const { data: user } = await useUserInfo();
 const { data: events, status, error } = await useListEvents({ q: undefined });
+
 </script>
 <template>
   <div class="flex flex-col w-screen h-screen">
-    <div class="fixed bottom-0 left-0">
-      <ButtonNavigation />
-    </div>
     <div class="h-44 lg:h-60 relative">
       <div class="absolute w-full h-full flex">
         <div
@@ -32,8 +31,8 @@ const { data: events, status, error } = await useListEvents({ q: undefined });
         style="width: -webkit-fill-available"
       >
         <div class="text-lg">
-          <span class="font-bold">Bienllegad@</span>
-          <span class="font-bold text-violet-950">Cristian 🥳</span>
+          <span class="font-bold">Bienllegad@ <span class="font-bold text-violet-950 capitalize">{{ user?.given_name }}🥳</span></span>
+          
           <p>
             a la Familia Colibrí Dorado, un espacio de sanación desde la
             frecuencia cuántica del amor. Gracias por unirte a esta tribu de
@@ -92,7 +91,9 @@ const { data: events, status, error } = await useListEvents({ q: undefined });
         </div>
         <div class="overflow-hidden">
           <div
-            v-for="(event, index) in events?.data.filter((p) => p.type == 'Retiro')"
+            v-for="(event, index) in events?.data.filter(
+              (p) => p.type == 'Retiro'
+            )"
             :key="index"
             class="flex overflow-x-auto gap-4 pl-4"
           >
@@ -145,6 +146,12 @@ const { data: events, status, error } = await useListEvents({ q: undefined });
           title: 'Mi Perfil',
           route: '/my-profile',
           icon: 'mdi-account-circle',
+        },
+        {
+          title: 'Admin',
+          route: '/users',
+          icon: 'mdi-monitor-dashboard',
+          isHidden: !user?.permissions
         },
       ]"
     />

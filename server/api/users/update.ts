@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
     numero_documento: body.numero_documento,
     email: body.email,
     rol: body.rol,
+    permissions: body.permissions
   });
   return data
 });

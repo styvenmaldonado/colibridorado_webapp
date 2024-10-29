@@ -114,11 +114,13 @@ const deleteUser = async () => {
                             </div>
                             <div class="grid">
                                 <span class="font-bold">rol</span>
-                                <span>ADMIN</span>
+                                <span>{{ data?.permissions || "-" }}</span>
                             </div>
                             <div v-if="data?.rol" class="grid">
                                 <span class="font-bold">Tipo de Usuario</span>
-                                <span>{{ data?.rol }}</span>
+                                <div v-for="(r, index) in JSON.parse(data.rol.toString())" :key="index" class="grid gap-2">
+                                    <span class="text-sm px-3 py-1.5 rounded-lg bg-slate-200 w-fit my-2">{{r?.name}}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,3 +1,4 @@
+import { fetchAuthSession } from "aws-amplify/auth";
 import type { UsersInterface } from "~/inteface/UsersInterface";
 
 interface UseListParams {
@@ -26,6 +27,17 @@ export function useGetUser(id: string) {
     })
   );
 }
+
+export async function useUserInfo() {
+  const session = await fetchAuthSession()
+  return useAsyncData("user" + session.userSub, () =>
+    $fetch("/api/users/get", {
+      method: "POST",
+      body: { id : session.userSub},
+    })
+  );
+}
+
 
 export function useUpdateUser(user: UsersInterface) {
   return useAsyncData("userupdate", () =>
