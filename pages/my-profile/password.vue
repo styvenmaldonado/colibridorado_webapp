@@ -1,5 +1,8 @@
 <script setup lang="ts">
-//definePageMeta({ middleware: "auth", auth: { guestRedirectTo: "/login" } })
+definePageMeta({ middleware: "authentication" })
+
+import { resetPassword, type ResetPasswordOutput } from 'aws-amplify/auth';
+
 import ButtonNavigation from "~/layouts/ButtonNavigation.vue";
 const { signIn, signOut, session, status, cookies, getProviders } = useAuth();
 </script>
