@@ -1,6 +1,7 @@
 import { uploadObject } from "~/libs/S3Client";
 
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
   const body = JSON.parse(await readBody(event));
   const buf = Buffer.from(
     body.base64.replace(/^data:image\/\w+;base64,/, ""),
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
   )*/
 
   return {
-    accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
+    accessKeyId: config.s3_accessKeyId,
+    secretAccessKey:config.s3_secretAccessKey,
   };
 });

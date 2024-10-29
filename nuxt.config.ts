@@ -19,18 +19,20 @@ export default defineNuxtConfig({
   ],
   alias: {
     cookie: "cookie",
-  }, 
-    // Optional default config
-   authJs: {
-  //    verifyClientOnEveryRequest: true,
-  //    guestRedirectTo: "/", // where to redirect if the user is not authenticated
-  //    authenticatedRedirectTo: "/", // where to redirect if the user is authenticated
-  baseUrl: process.env.BASE_URL // should be something like https://www.my-app.com
+  },
+  // Optional default config
+  authJs: {
+    //    verifyClientOnEveryRequest: true,
+    //    guestRedirectTo: "/", // where to redirect if the user is not authenticated
+    //    authenticatedRedirectTo: "/", // where to redirect if the user is authenticated
+    baseUrl: process.env.BASE_URL, // should be something like https://www.my-app.com
   },
   runtimeConfig: {
     authJs: {
       secret: process.env.NUXT_NEXTAUTH_SECRET, // You can generate one with `openssl rand -base64 32`
     },
+    s3_accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
+    s3_secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
     public: {
       cdn: process.env.CND,
       authJs: {
