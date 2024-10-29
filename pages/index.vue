@@ -3,14 +3,9 @@ definePageMeta({ middleware: "authentication" });
 import ButtonNavigation from "~/layouts/ButtonNavigation.vue";
 import { client } from "~/libs/AmplifyDataClient";
 import { format } from "date-fns";
+import { useListEvents } from "~/hooks/events";
 
-const { data: events, status,error } = await useAsyncData(
-  "index",
-  async () => {
-    const { data } = await client.models.Events.list()
-    return data;
-  }
-);
+const { data: events, status, error } = await useListEvents({ q: undefined });
 </script>
 <template>
   <div class="flex flex-col w-screen h-screen">
@@ -55,12 +50,13 @@ const { data: events, status,error } = await useAsyncData(
           </p>
         </div>
       </div>
-      <div v-if="events?.filter((p) => p.type == 'Ceremonia').length">        <div class="text-lg pt-8 px-5">
+      <div v-if="events?.data.filter((p) => p.type == 'Ceremonia').length">
+        <div class="text-lg pt-8 px-5">
           <span class="font-bold text-violet-950">Ceremonia</span>
         </div>
         <div class="overflow-hidden">
           <div
-            v-for="(event, index) in events?.filter(
+            v-for="(event, index) in events?.data.filter(
               (p) => p.type == 'Ceremonia'
             )"
             :key="index"
@@ -78,7 +74,12 @@ const { data: events, status,error } = await useAsyncData(
               </div>
               <div class="grid pt-2">
                 <span class="font-bold">{{ event.name }}</span>
-                <span>{{ format(new Date(event?.datetime_start || ""),"d 'de' MMMM yyyy - hh:mm aaaa") }}</span>
+                <span>{{
+                  format(
+                    new Date(event?.datetime_start || ""),
+                    "d 'de' MMMM yyyy - hh:mm aaaa"
+                  )
+                }}</span>
                 <span>{{ event.location }}</span>
               </div>
             </a>
@@ -86,13 +87,13 @@ const { data: events, status,error } = await useAsyncData(
         </div>
       </div>
 
-      <div v-if="events?.filter((p) => p.type == 'Retiro').length">
+      <div v-if="events?.data.filter((p) => p.type == 'Retiro').length">
         <div class="text-lg pt-8 px-5">
           <span class="font-bold text-violet-950">Retiros</span>
         </div>
         <div class="overflow-hidden">
           <div
-            v-for="(event, index) in events?.filter((p) => p.type == 'Retiro')"
+            v-for="(event, index) in events?.data.filter((p) => p.type == 'Retiro')"
             :key="index"
             class="flex overflow-x-auto gap-4 pl-4"
           >
@@ -108,7 +109,12 @@ const { data: events, status,error } = await useAsyncData(
               </div>
               <div class="grid pt-2">
                 <span class="font-bold">{{ event.name }}</span>
-                <span>{{ format(new Date(event?.datetime_start || ""),"d 'de' MMMM yyyy - hh:mm aaaa") }}</span>
+                <span>{{
+                  format(
+                    new Date(event?.datetime_start || ""),
+                    "d 'de' MMMM yyyy - hh:mm aaaa"
+                  )
+                }}</span>
                 <span>{{ event.location }}</span>
               </div>
             </a>

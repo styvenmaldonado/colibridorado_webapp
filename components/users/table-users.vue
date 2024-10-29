@@ -13,7 +13,7 @@ const model = reactive({
 const loadItems = async () => {
   const { data } = await useListUser({ q: undefined });
   //@ts-ignore
-  model.serverItems.push(...data.value?.data);
+  model.serverItems = data.value?.data;
   model.totalItems = data.value?.count || 0;
   model.loading = false;
 };
@@ -29,7 +29,7 @@ watch(
     model.loading = true;
     const { data } = await useListUser(value);
     //@ts-ignore
-    model.serverItems.push(...data.value?.data);
+    model.serverItems = data.value?.data;
     model.loading = false;
   }
 );

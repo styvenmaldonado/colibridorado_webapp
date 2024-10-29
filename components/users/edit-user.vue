@@ -7,22 +7,17 @@ import "vue3-toastify/dist/index.css";
 
 import { getCountryDataList } from "countries-list";
 import { client } from "~/libs/AmplifyDataClient";
-import { v4 as uuidv4 } from "uuid";
 import type { SubmitEventPromise } from "vuetify";
+import { useGetUser, useUpdateUser } from "~/hooks/users";
+import { useListUserTypes } from "~/hooks/userTypes";
 
 const route = useRoute();
 
-const { data: user, status } = await useAsyncData("getUser", async () => {
-  const { data } = await client.models.Users.get({
-    id: route.query.id?.toString() || "",
-  });
-  return data;
-});
+const { data: user, status } = await useGetUser(
+  route.query.id?.toString() || ""
+);
 
-const { data: usersTypes } = await useAsyncData("usersTypes", async () => {
-  const { data } = await client.models.UsersTypes.list();
-  return data;
-});
+const { data: usersTypes } = await useListUserTypes();
 
 const list_countries = getCountryDataList().map((c) => c.name);
 const t_doc = [
@@ -35,7 +30,7 @@ const t_doc = [
 ];
 
 const data = reactive({
-  userTypesList: usersTypes.value?.map((c) => c.name),
+  userTypesList: usersTypes.value?.data?.map((c) => c.name),
   givenName: user.value?.given_name,
   familyName: user.value?.family_name,
   tipo_documento: user.value?.tipo_documento,
@@ -46,29 +41,28 @@ const data = reactive({
   phone: user.value?.phone_number,
   city: user.value?.city,
   country: user.value?.country,
-  rol: user.value?.rol,
-  userType: [],
+  userType: JSON.parse(user.value?.rol?.toString() || ""),
 });
 
 const submit = async (event: SubmitEventPromise) => {
   const { valid } = await event;
   if (!valid) return;
-  const { errors } = await client.models.Users.update({
+  const { error } = await useUpdateUser({
     id: route.query.id?.toString() || "",
-    given_name: data.givenName,
-    family_name: data.familyName,
-    birthdate: data.birthdate,
-    address: data.address,
-    city: data.city,
-    country: data.country,
-    tipo_documento: data.tipo_documento,
-    numero_documento: data.numero_documento,
-    email: data.email,
+    given_name: data.givenName || "",
+    family_name: data.familyName || "",
+    birthdate: data.birthdate || "",
+    address: data.address || "",
+    city: data.city || "",
+    country: data.country || "",
+    tipo_documento: data.tipo_documento || "",
+    numero_documento: data.numero_documento || "",
+    email: data.email || "",
     rol: JSON.stringify(data.userType),
+    phone_number: data.phone || ""
   });
 
-  console.log(errors);
-  if (!errors) {
+  if (!error.value) {
     toast("Usuario Actualizado con Exito!", {
       theme: "colored",
       type: "success",
@@ -201,7 +195,7 @@ const submit = async (event: SubmitEventPromise) => {
                 multiple
                 label="Tipo Usuario"
                 v-model="data.userType"
-                :items="usersTypes"
+                :items="usersTypes?.data"
               >
                 <template v-slot:chip="{ props, item }">
                   <v-chip

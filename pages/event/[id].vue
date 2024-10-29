@@ -1,20 +1,12 @@
 <script setup lang="ts">
-definePageMeta({ middleware: "auth", auth: { guestRedirectTo: "/login" } });
-import { client } from "~/libs/AmplifyDataClient";
-import { format } from "date-fns";
+definePageMeta({ middleware: "authentication" });
 
-const runtimeConfig = useRuntimeConfig();
+import { format } from "date-fns";
+import { useGetEvent } from "~/hooks/events";
+
 
 const route = useRoute();
-const { data: event, status } = await useAsyncData(
-  route.params.id?.toString() || "",
-  async () => {
-    const { data } = await client.models.Events.get({
-      id: route.params.id?.toString() || "",
-    });
-    return data;
-  }
-);
+const { data: event, status } = await useGetEvent(route.params.id?.toString() || "",)
 </script>
 <template>
   <div class="w-screen">

@@ -2,6 +2,7 @@
 import { client } from '~/libs/AmplifyDataClient';
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import { useGetUser } from '~/hooks/users';
 
 const route = useRoute()
 
@@ -9,10 +10,7 @@ const tab = ref("info")
 const dialog = ref(false)
 
 
-const { data, error } = await useAsyncData('users', async () => {
-    const { data } = await client.models.Users.get({ id: route.params?.id.toString() || "" })
-    return data
-})
+const { data, error } = await useGetUser(route.params?.id.toString() || "")
 
 const deleteUser = async () => {
     const { errors } = await client.models.Users.delete({
