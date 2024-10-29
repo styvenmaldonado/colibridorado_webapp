@@ -7,9 +7,9 @@ export default defineEventHandler(async (event) => {
     body.base64.replace(/^data:image\/\w+;base64,/, ""),
     "base64"
   );
-  /*const response = await uploadObject(
-    { accessKeyId: process.env.S3_ACCESS_KEY_ID || "", 
-      secretAccessKey:process.env.S3_SECRET_ACCESS_KEY || "" },
+  const response = await uploadObject(
+    { accessKeyId: config.s3_accessKeyId, 
+      secretAccessKey:config.s3_secretAccessKey },
     {
       Bucket: "colibridoradobucket",
       Body: buf,
@@ -17,10 +17,7 @@ export default defineEventHandler(async (event) => {
       ContentEncoding: 'base64',
       Key: body.id,
     }
-  )*/
+  )
 
-  return {
-    accessKeyId: config.s3_accessKeyId,
-    secretAccessKey:config.s3_secretAccessKey,
-  };
+  return response
 });

@@ -5,11 +5,8 @@ export default defineEventHandler(async (event) => {
   const events = await getAllEvents();
   const fuse = new Fuse(events, {
     keys: [
-      "given_name",
-      "family_name",
-      "phone_number",
-      "numero_documento",
-      "email",
+      "name",
+      "location",
     ],
   });
 
