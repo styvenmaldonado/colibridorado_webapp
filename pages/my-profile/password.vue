@@ -1,12 +1,54 @@
 <script setup lang="ts">
-definePageMeta({ middleware: "authentication" })
+definePageMeta({ middleware: "authentication" });
 
-import { resetPassword, type ResetPasswordOutput } from 'aws-amplify/auth';
-
+import { updatePassword } from "aws-amplify/auth";
+import { toast } from "vue3-toastify";
+import type { SubmitEventPromise } from "vuetify";
 import ButtonNavigation from "~/layouts/ButtonNavigation.vue";
-const { signIn, signOut, session, status, cookies, getProviders } = useAuth();
+import "vue3-toastify/dist/index.css";
+
+const loading = ref(false);
+
+const password = reactive({
+  oldPassword: "",
+  newPassword: "",
+  newPasswordRepeat: "",
+});
+
+const submit = async (event: SubmitEventPromise) => {
+  try {
+    loading.value = true;
+    const { valid } = await event;
+    if (!valid) return;
+    await updatePassword({
+      oldPassword: password.oldPassword,
+      newPassword: password.newPasswordRepeat,
+    });
+    toast("Contraseña Actualizada con Exito!", {
+      theme: "colored",
+      type: "success",
+      position: "top-center",
+      autoClose: false,
+      dangerouslyHTMLString: true,
+    });
+  } catch (error) {
+    loading.value = false;
+    console.log(error);
+    toast("Contraseña Incorrecta!", {
+      theme: "colored",
+      type: "error",
+      position: "top-center",
+      autoClose: false,
+      dangerouslyHTMLString: true,
+    });
+    password.newPassword = "";
+    password.newPasswordRepeat = "";
+    password.oldPassword = "";
+  }
+};
 </script>
 <template>
+  <loading :is-loading="loading" />
   <div class="flex flex-col w-screen h-screen">
     <div class="fixed bottom-0 left-0">
       <ButtonNavigation />
@@ -33,23 +75,59 @@ const { signIn, signOut, session, status, cookies, getProviders } = useAuth();
       >
         <div class="text-lg pt-6">
           <span class="font-bold"></span>
-          <span class="font-bold text-violet-950 space-x-1 space-x-">Cambiar mi contraseña</span>
-          <p>Actualiza tu informacion y gestiona tu perfil
-          </p>
+          <span class="font-bold text-violet-950 space-x-1 space-x-"
+            >Cambiar mi contraseña</span
+          >
+          <p>Actualiza tu informacion y gestiona tu perfil</p>
         </div>
-        <div class="flex flex-col pt-6">
-          <v-text-field  required
-            prepend-inner-icon="mdi-lock" variant="outlined"  label="Constraseña Antigua"
-            type="password"></v-text-field>
-            <v-text-field  required
-            prepend-inner-icon="mdi-lock" variant="outlined"  label="Constraseña Nueva"
-            type="password"></v-text-field>
-        
-            <v-text-field  required
-            prepend-inner-icon="mdi-lock" variant="outlined"  label="Repite tu contraseña"
-            type="password"></v-text-field>
-        
-        </div>
+        <v-form @submit.prevent="submit">
+          <div class="flex flex-col pt-6">
+            <v-text-field
+              :rules="[() => !!password.oldPassword || 'Campo requerido']"
+              required
+              prepend-inner-icon="mdi-lock"
+              variant="outlined"
+              v-model="password.oldPassword"
+              label="Constraseña Antigua"
+              type="password"
+            ></v-text-field>
+            <v-text-field
+              :rules="[
+                () =>
+                  password.newPassword.length > 5 ||
+                  'Longitud mínima 6 caracteres',
+              ]"
+              required
+              prepend-inner-icon="mdi-lock"
+              variant="outlined"
+              v-model="password.newPassword"
+              label="Constraseña Nueva"
+              type="password"
+            ></v-text-field>
+            <v-text-field
+              :rules="[
+                () =>
+                  password.newPassword == password.newPasswordRepeat ||
+                  'Contraseña no coincide',
+              ]"
+              required
+              prepend-inner-icon="mdi-lock"
+              variant="outlined"
+              v-model="password.newPasswordRepeat"
+              label="Repite tu contraseña"
+              type="password"
+            ></v-text-field>
+            <button
+              type="submit"
+              color="surface-variant"
+              text="Submit"
+              variant="tonal"
+              class="bg-gradient-to-r from-fuchsia-900 to-violet-950 text-white font-bold py-4 w-full rounded-lg"
+            >
+              Enviar
+            </button>
+          </div>
+        </v-form>
       </div>
       <div class="pt-24"></div>
     </div>
