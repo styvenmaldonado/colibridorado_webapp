@@ -1,14 +1,19 @@
-<script lang="ts">
-export default {
-    data: () => ({
-        tab: "users"
-    }),
-    methods: {
-    async goTo(route:string){
-      await navigateTo({ path: route})
-    }
-  }
-}
+<script setup lang="ts">
+const tab = ref("users")
+import { debounce } from "lodash";
+const model = reactive({
+  q: "",
+});
+
+const router = useRouter();
+watch(
+  model,
+  debounce((value) => {
+    const p = new URLSearchParams(value).toString();
+    router.push("?" + p);
+  }, 1000)
+);
+
 </script>
 <template>
     <div class="w-full h-full p-8 overflow-y-scroll">
@@ -19,14 +24,14 @@ export default {
                         <h1 class="text-4xl font-bold">Ceremonias y eventos</h1>
                     </div>
                     <div class="ml-auto">
-                        <button @click="goTo('/events/create')"
+                        <button @click="navigateTo('/events/create')"
                             class="px-5 font-bold rounded-lg py-3 bg-gradient-to-r from-fuchsia-900 to-violet-950 text-white">+
                             Nueva Ceremonia o evento</button>
                     </div>
                 </div>
             </div>
             <div class="py-4 flex gap-2">
-                <v-text-field variant="outlined" prepend-inner-icon="mdi-magnify" label="Buscar"></v-text-field>
+                <v-text-field v-model="model.q" variant="outlined" prepend-inner-icon="mdi-magnify" label="Buscar"></v-text-field>
                 <v-select label="Tipo Usuario" :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
                     variant="outlined"></v-select>
             </div>

@@ -52,6 +52,7 @@ const onSubmit = async (event: SubmitEventPromise) => {
   try {
     const { valid } = await event;
     if (!valid) return;
+    loading.value = true;
     const { userId, isSignUpComplete, nextStep } = await signUp({
       username: state.value.email,
       password: state.value.password,
@@ -83,6 +84,7 @@ const onSubmit = async (event: SubmitEventPromise) => {
     });
     await navigateTo({ path: "/OTP", query: { email: state.value.email } });
   } catch (error) {
+    loading.value = false;
     console.log(error);
   }
 };

@@ -2,15 +2,12 @@
 import { toast } from 'vue3-toastify';
 import { client } from '~/libs/AmplifyDataClient';
 import { format } from "date-fns";
+import { useGetEvent } from '~/hooks/events';
 
 
 const route = useRoute();
 
-const { data: event, status } = await useAsyncData('getUser', async () => {
-  const { data } = await client.models.Events.get({id: route.params.id?.toString() || ""})
-  return data
-})
-
+const { data: event, status } = await useGetEvent(route.params.id?.toString() || "")
 
 const deleteEvent = async () => {
     const { errors } = await client.models.Events.delete({
