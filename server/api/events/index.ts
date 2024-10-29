@@ -1,17 +1,18 @@
 import { getAllEvents, getAllUsers } from "~/libs/EntitiesDataClient";
 import Fuse from "fuse.js";
-import { isUserAuthenticated } from "~/libs/AuthManager";
+import { decodeJWT } from "aws-amplify/auth";
 
 export default defineEventHandler(async (event) => {
-  const shouldShowData = await isUserAuthenticated();
-  if (shouldShowData) {
+  const { offset, limit, q, token } = getQuery(event);
+  const isAuth = decodeJWT(token?.toString() || "");
+  
+  if (isAuth) {
     const events = await getAllEvents();
 
     const fuse = new Fuse(events, {
       keys: ["name", "location"],
     });
 
-    const { offset, limit, q } = getQuery(event);
     const q_search = q
       ? fuse.search(q?.toString() || "").map((c) => c.item)
       : [];

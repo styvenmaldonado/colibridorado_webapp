@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ middleware: "authentication" });
 import Sidebar from '~/layouts/Sidebar.vue';
 
 </script>

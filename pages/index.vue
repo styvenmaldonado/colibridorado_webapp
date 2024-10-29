@@ -1,7 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: "authentication" });
 import ButtonNavigation from "~/layouts/ButtonNavigation.vue";
-import { client } from "~/libs/AmplifyDataClient";
 import { format } from "date-fns";
 import { useListEvents } from "~/hooks/events";
 
