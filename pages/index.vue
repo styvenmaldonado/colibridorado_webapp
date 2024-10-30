@@ -88,7 +88,7 @@ watchEffect(async () => {
           <span class="font-bold text-violet-950">Ceremonia</span>
         </div>
         <div class="overflow-hidden">
-          <div v-for="(event, index) in eventList.value.data.filter(() => event.type === 'Ceremonia')" :key="index" class="flex overflow-x-auto gap-4 pl-4">
+          <div v-for="(event, index) in eventList.value.data.filter(event => event.type === 'Ceremonia')" :key="index" class="flex overflow-x-auto gap-4 pl-4">
             <a :href="'/event/' + event.id" class="card py-4 w-60 flex-shrink-0">
               <div class="h-32 w-full">
                 <img class="w-full h-full rounded-lg object-fit" :src="'https://d334a63s5wk7yh.cloudfront.net/'+ event.photos[0]" loading="lazy" />
@@ -109,7 +109,7 @@ watchEffect(async () => {
           <span class="font-bold text-violet-950">Retiros</span>
         </div>
         <div class="overflow-hidden">
-          <div v-for="(event, index) in eventList.value.data.filter(() => event.type === 'Retiro')" :key="index" class="flex overflow-x-auto gap-4 pl-4">
+          <div v-for="(event, index) in eventList.value.data.filter(event => event.type === 'Retiro')" :key="index" class="flex overflow-x-auto gap-4 pl-4">
             <a :href="'/event/' + event.id" class="card py-4 w-60 flex-shrink-0">
               <div class="h-32 w-full">
                 <img class="w-full h-full rounded-lg object-fit" :src="'https://d334a63s5wk7yh.cloudfront.net/'+ event.photos[0]" loading="lazy" />
