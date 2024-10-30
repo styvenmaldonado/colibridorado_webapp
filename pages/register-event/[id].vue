@@ -48,7 +48,7 @@ const submit = async () => {
       rol: JSON.stringify(eventUserUIState.rolSelected),
     });
     if(!error.value) {
-      window.location.href = `${data.value?.res};` 
+      window.location.href = `${data.value?.res}` 
     }
     toast("Error, Intenta Nuevamente!", {
       theme: "colored",
