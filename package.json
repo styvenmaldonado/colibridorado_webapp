@@ -10,11 +10,10 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@auth/core": "^0.17.0",
+    "@auth/core": "^0.37.2",
     "@aws-sdk/client-s3": "^3.662.0",
-    "@hebilicious/authjs-nuxt": "^0.3.5",
     "@nuxtjs/tailwindcss": "^6.12.1",
-    "@sidebase/nuxt-auth": "^0.9.1",
+    "@sidebase/nuxt-auth": "^0.6.7",
     "@vueuse/core": "^11.0.3",
     "aws-amplify": "^6.5.3",
     "countries-list": "^3.1.1",
@@ -38,7 +37,7 @@
     "@aws-amplify/backend": "^1.1.1",
     "@aws-amplify/backend-cli": "^1.2.5",
     "@types/dropzone": "^5.7.8",
-    "@types/vue-tel-input": "^2.1.7",
+    "@types/vue-tel-input": "^2.1.1",
     "aws-cdk": "^2.154.1",
     "aws-cdk-lib": "^2.154.1",
     "constructs": "^10.3.0",
