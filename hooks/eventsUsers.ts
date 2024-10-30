@@ -9,7 +9,7 @@ export function useListEventUsers(input: {
     () =>
       $fetch("/api/eventsUsers", {
         method: "POST",
-        body: {
+        query: {
           eventId: input.eventId,
           userId: input.userId,
         },
