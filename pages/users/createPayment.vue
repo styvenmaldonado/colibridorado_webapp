@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import Sidebar from '~/layouts/Sidebar.vue';
-
 </script>
 
 <template>
-    <div class="h-screen w-screen flex">
-        <Sidebar />
-        <create-payment/>
-    </div>
+  <div class="h-screen w-screen flex">
+    <Sidebar/>
+    <create-payment/>
+  </div>
 </template>

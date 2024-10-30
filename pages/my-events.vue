@@ -4,8 +4,6 @@ import ButtonNavigation from '~/layouts/ButtonNavigation.vue';
 import { client } from '~/libs/AmplifyDataClient';
 import { format } from "date-fns";
 
-const { user } = useAuth()
-
 const { data: events, status,error } = await useAsyncData(
   "my-events",
   async () => {
@@ -29,7 +27,7 @@ const { data: events, status,error } = await useAsyncData(
     </div>
     <div
       class="bg-white pt-10 lg:pt-0 lg:m-auto lg:w-3/6 flex flex-col lg:rounded-lg lg:shadow-lg lg:border lg:border-gray-300">
-      <div class="px-5 lg:w-11/12 lg:py-8 mx-auto " style="width: -webkit-fill-available;">
+      <div class="px-5 lg:w-11/12 lg:py-8 mx-auto ">
       
         <div class="text-lg pt-6">
           <span class="font-bold"></span> <span class="font-bold text-violet-950">Mis Ceremonias y Retiros</span>
