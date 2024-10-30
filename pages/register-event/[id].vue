@@ -1,47 +1,16 @@
 <script setup lang="ts">
-definePageMeta({ middleware: "auth", auth: { guestRedirectTo: "/login" } });
-import { Amplify } from "aws-amplify";
-import outputs from "../../amplify_outputs.json";
-import { client } from "~/libs/AmplifyDataClient";
-import { v4 as uuidv4 } from "uuid";
-import { OrchestadorPayment } from "~/libs/OrchestratorPayment";
+definePageMeta({ middleware: "authentication" });
+
 import type { SubmitEventPromise } from "vuetify";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-import { User } from "aws-cdk-lib/aws-iam";
+import { useUserInfo } from "~/hooks/users";
+import { usePaymentOrchestrator } from "~/hooks/payments";
 
-const { user } = useAuth();
-
-Amplify.configure(outputs);
-
+const { data: user } = await useUserInfo();
+const step = ref(1);
+const isLoading = ref(false);
 const route = useRoute();
-
-const { data: event, status } = await useAsyncData(
-  "Event" + route.params.id?.toString(),
-  async () => {
-    const { data } = await client.models.Events.get({
-      id: route.params.id?.toString() || "",
-    });
-    return data;
-  }
-);
-
-const { data: userData } = await useAsyncData(
-  "user" + route.params.id?.toString(),
-  async () => {
-    const { data } = await client.models.Users.list({
-      filter: {
-        email: {
-          eq: user.value?.email || "",
-        },
-      },
-    });
-    return data;
-  }
-);
-
-const step = ref(3);
-const loading = ref(false);
 
 const medicalPreincription = ref({
   referBy: "",
@@ -49,13 +18,15 @@ const medicalPreincription = ref({
   medicine: "",
 });
 
-const data = reactive({
+const eventUserUIState = reactive({
+  rol: JSON.parse(user.value?.rol?.toString() || ""),
   suggestions: "",
   aditional_info: "",
   transport_description: "",
   needs_transport: false,
   available_seats: false,
   available_seats_number: 0,
+  rolSelected: undefined,
 });
 
 const nextStep = async (event: SubmitEventPromise) => {
@@ -65,37 +36,26 @@ const nextStep = async (event: SubmitEventPromise) => {
 };
 
 const submit = async () => {
-  try {
-    
-    loading.value = true;
-
-    const id = uuidv4();
-    const { errors } = await client.models.EventsUser.create({
-      id,
-      eventUsersId: id,
-      eventId: event.value?.eventId || "",
-      needs_transport: data.needs_transport,
-      available_seats: data.available_seats,
-      available_seats_number: data.available_seats_number,
-      userId: user.value?.id,
-      medicalPreincription: JSON.stringify(medicalPreincription),
+  try {  
+    isLoading.value = true;
+    const { data, error } = await usePaymentOrchestrator({
+      eventId: route.params.id.toString(),
+      needs_transport: eventUserUIState.needs_transport,
+      available_seats: eventUserUIState.available_seats,
+      available_seats_number: eventUserUIState.available_seats_number,
+      userId: user.value?.id || "",
+      medicalPreincription: JSON.stringify(medicalPreincription.value),
+      rol: JSON.stringify(eventUserUIState.rolSelected),
     });
-    if (!errors) {
-      const result = await OrchestadorPayment(
-        route.params.id?.toString() || "",
-        id,
-        userData?.value![0].id || "",
-        {
-          currency: "COP",
-        }
-      );
-      window.location.href = result;
+    if(!error.value) {
+      window.location.href = `${data.value?.res};` 
     }
     toast("Error, Intenta Nuevamente!", {
       theme: "colored",
       type: "error",
       dangerouslyHTMLString: true,
     });
+  
   } catch (error) {
     toast("Error, Intenta Nuevamente!", {
       theme: "colored",
@@ -108,15 +68,7 @@ const submit = async () => {
 const next = async () => {};
 </script>
 <template>
-  <div
-    v-if="status == 'pending' || loading"
-    style="z-index: 9999"
-    class="fixed w-screen h-screen bg-gray-600 opacity-45 flex"
-  >
-    <div class="m-auto">
-      <v-progress-circular indeterminate :size="76"></v-progress-circular>
-    </div>
-  </div>
+  <loading :isLoading="isLoading" />
   <div class="flex flex-col w-screen h-screen">
     <div class="h-44 lg:h-60 relative">
       <div class="absolute w-full h-full flex">
@@ -139,6 +91,7 @@ const next = async () => {};
           Resueno y me quiero inscribir
         </h1>
         <span>Diligencia los datos e inscríbete</span>
+
         <v-stepper
           alt-labels
           v-model="step"
@@ -150,13 +103,16 @@ const next = async () => {};
             <v-form @submit.prevent="nextStep" class="pt-4 flex flex-col">
               <p class="font-bold">Rol</p>
               <v-autocomplete
+              :rules="[
+                  () => !!eventUserUIState.rolSelected || 'Campo requerido',
+                ]"
                 variant="outlined"
-                multiple
-                label="Tipo Usuario"
-                :items="[]"
+                required
+                v-model="eventUserUIState.rolSelected"
+                :items="eventUserUIState.rol"
               >
                 <template v-slot:chip="{ props, item }">
-                  <v-chip v-bind="props" :text="item.raw.name"></v-chip>
+                  <v-chip v-bind="props" :text="item.raw?.name"></v-chip>
                 </template>
 
                 <template v-slot:item="{ props, item }">
@@ -217,21 +173,27 @@ const next = async () => {};
           <template v-slot:item.2>
             <v-form @submit.prevent="" class="pt-4 flex flex-col">
               <p class="font-bold">¿Necesita transporte?</p>
-              <v-checkbox v-model="data.needs_transport"></v-checkbox>
+              <v-checkbox
+                v-model="eventUserUIState.needs_transport"
+              ></v-checkbox>
 
               <p class="font-bold">
                 ¿Tienes disponibilidad de Cupos de Transporte?
               </p>
-              <v-checkbox v-model="data.available_seats"></v-checkbox>
+              <v-checkbox
+                v-model="eventUserUIState.available_seats"
+              ></v-checkbox>
               <p class="font-bold">No. Asientos disponibles</p>
               <v-text-field
                 :rules="[
-                  () => !!data.available_seats_number || 'Campo requerido',
+                  () =>
+                    !!eventUserUIState.available_seats_number ||
+                    'Campo requerido',
                 ]"
                 required
                 type="number"
                 variant="outlined"
-                v-model="data.available_seats_number"
+                v-model="eventUserUIState.available_seats_number"
                 label=""
               ></v-text-field>
 

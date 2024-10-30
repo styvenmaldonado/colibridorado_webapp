@@ -33,6 +33,8 @@ export default defineNuxtConfig({
     },
     s3_accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
     s3_secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
+    baseURL: process.env.BASE_URL || "",
+    WOMPI_API_KEY: process.env.WOMPI_API_KEY || "",
     public: {
       cdn: process.env.CND,
       authJs: {
