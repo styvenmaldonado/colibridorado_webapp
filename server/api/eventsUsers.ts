@@ -1,6 +1,9 @@
 import { getAllEvents, getAllEventUsers, getAllUsers } from "~/libs/EntitiesDataClient";
 
 export default defineEventHandler(async (event) => {
+
+  const eventId = ""
+
   const EventsUser = await getAllEventUsers()
   const Users = await getAllUsers()
   const Events = await getAllEvents()
@@ -11,11 +14,10 @@ export default defineEventHandler(async (event) => {
     users: Users?.find(p => p.id == c.userId)
   }))
   
-  const { offset, limit } = getQuery(event)
+  
   return {
-    
     count: response?.length,
-    data: response?.splice(0,50)
+    data: response
   }
 });
 
