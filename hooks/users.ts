@@ -28,6 +28,15 @@ export function useGetUser(id: string) {
   );
 }
 
+export function useDeleteUser(id: string) {
+  return useAsyncData("deleteuser" + id, () =>
+    $fetch("/api/users/delete", {
+      method: "POST",
+      body: { id },
+    })
+  );
+}
+
 export async function useUserInfo() {
   const session = await fetchAuthSession()
   return useAsyncData("user" + session.userSub, () =>
@@ -39,9 +48,19 @@ export async function useUserInfo() {
 }
 
 
-export function useUpdateUser(user: UsersInterface) {
+export function useUpdateUser(id: string) {
   return useAsyncData("userupdate", () =>
     $fetch("/api/users/update", {
+      method: "POST",
+      body: { id },
+    })
+  );
+}
+
+
+export function useDelete(user: UsersInterface) {
+  return useAsyncData("userdelete", () =>
+    $fetch("/api/users/delete", {
       method: "POST",
       body: user,
     })

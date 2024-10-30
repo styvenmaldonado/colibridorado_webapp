@@ -24,9 +24,7 @@ export default {
       const { valid } = await event;
       if (!valid) return;
       const { data, error } = await useCreateUserTypes({
-        name: this.name,
-        isDefault: this.isDefault,
-        description: "",
+        name: this.name
       });
 
       if (!error.value) {
@@ -72,10 +70,6 @@ export default {
                 label="Nombre"
               ></v-text-field>
             </div>
-            <v-checkbox
-              v-model="isDefault"
-              label="Tipo de Usuario Por Defecto"
-            ></v-checkbox>
           </div>
           <button
             type="submit"

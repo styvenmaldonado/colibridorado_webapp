@@ -32,3 +32,13 @@ export async function useGetEvent(id: string) {
     })
   );
 }
+
+
+export async function useDeleteEvent(id: string) {
+  return useAsyncData<EventInteface>("deleteEvent" + id, () =>
+    $fetch("/api/events/delete", {
+      method: "POST",
+      body: { id },
+    })
+  );
+}

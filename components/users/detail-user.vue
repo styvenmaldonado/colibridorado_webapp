@@ -2,7 +2,7 @@
 import { client } from '~/libs/AmplifyDataClient';
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-import { useGetUser } from '~/hooks/users';
+import { useDeleteUser, useGetUser } from '~/hooks/users';
 
 const route = useRoute()
 
@@ -13,10 +13,8 @@ const dialog = ref(false)
 const { data, error } = await useGetUser(route.params?.id.toString() || "")
 
 const deleteUser = async () => {
-    const { errors } = await client.models.Users.delete({
-        id: route.params?.id.toString() || ""
-    })
-    if (!errors) {
+    const { error } = await useDeleteUser(route.params?.id.toString() || "")
+    if (!error.value) {
     toast("Usuario Eliminado con Exito!", {
       "theme": "colored",
       "type": "success",

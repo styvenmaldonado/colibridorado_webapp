@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { debounce } from "lodash";
+import { useListUserTypes } from "~/hooks/userTypes";
+
+const { data: userTypeList } = await useListUserTypes();
+
 const model = reactive({
   q: "",
+  userType: [],
 });
 
 const router = useRouter();
@@ -37,7 +42,24 @@ watch(
       prepend-inner-icon="mdi-magnify"
       label="Buscar"
     ></v-text-field>
-    <v-select label="Tipo Usuario" :items="[]" variant="outlined"></v-select>
+    <v-select
+      v-model="model.userType"
+      label="Tipo Usuario"
+      :items="userTypeList?.data"
+      variant="outlined"
+      item-value="id"
+    >
+    <template v-slot:chip="{ props, item }">
+                <v-chip
+                  v-bind="props"
+                 
+                  :text="item.raw.name"
+                ></v-chip>
+              </template>
+      <template v-slot:item="{ props, item }">
+        <v-list-item v-bind="props" :title="item.raw.name"></v-list-item>
+      </template>
+    </v-select>
     <button
       class="flex gap-2 text-sm bg-green-200 rounded-lg px-4 items-center h-14"
     >
