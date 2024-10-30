@@ -10,10 +10,8 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@auth/core": "^0.37.2",
     "@aws-sdk/client-s3": "^3.662.0",
     "@nuxtjs/tailwindcss": "^6.12.1",
-    "@sidebase/nuxt-auth": "^0.6.7",
     "@vueuse/core": "^11.0.3",
     "aws-amplify": "^6.5.3",
     "countries-list": "^3.1.1",
@@ -23,7 +21,6 @@
     "fuse.js": "^7.0.0",
     "lodash": "^4.17.21",
     "mime": "^4.0.4",
-    "next-auth": "^4.21.1",
     "nuxt": "^3.12.4",
     "uuid": "^10.0.0",
     "v-phone-input": "^4.3.2",
