@@ -40,7 +40,7 @@ const data = reactive({
   phone: user.value?.phone_number,
   city: user.value?.city,
   country: user.value?.country,
-  userType: JSON.parse(user.value?.rol?.toString() || ""),
+  userType:user.value?.rol && JSON.parse(user.value?.rol?.toString() || ""),
   permissions: user.value?.permissions
 });
 
@@ -203,7 +203,6 @@ const submit = async (event: SubmitEventPromise) => {
                 <template v-slot:chip="{ props, item }">
                   <v-chip
                     v-bind="props"
-                    :prepend-avatar="item.raw.avatar"
                     :text="item.raw.name"
                   ></v-chip>
                 </template>

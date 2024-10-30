@@ -2,8 +2,9 @@ import { client } from "~/libs/AmplifyDataClient";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const { data } = await client.models.Users.update({
+  const { data } = await client.models.Users.create({
     id: body.id,
+    userId: body.id,
     given_name: body.given_name,
     family_name: body.family_name,
     birthdate: body.birthdate,

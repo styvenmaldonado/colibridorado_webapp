@@ -4,31 +4,28 @@ import outputs from "../../amplify_outputs.json";
 import { signUp } from "aws-amplify/auth";
 import { client } from "~/libs/AmplifyDataClient";
 import { toast } from "vue3-toastify";
-import 'vue3-toastify/dist/index.css';
-
+import "vue3-toastify/dist/index.css";
+import { useCreateInterview } from "~/hooks/interviews";
+import { useGetUser } from "~/hooks/users";
 
 Amplify.configure(outputs);
 const route = useRoute();
 
-const { data: user, error } = await useAsyncData('users', async () => {
-    const { data } = await client.models.Users.get({ id: route.params?.id.toString() || "" })
-    return data
-})
-
+const { data: user, status } = await useGetUser(route.params?.id.toString())
+const isLoading = ref(false)
 
 const t_doc = ref([
-    "CC - Cédula de Ciudadanía",
-    "CE - Cédula de extranjería",
-    "PA - Pasaporte",
-    "TI - Tarjeta de Identidad",
-    "CD - Carnet Diplomático",
-    "PEP - Permiso Especial de Permanencia",
-  ],
-) 
+  "CC - Cédula de Ciudadanía",
+  "CE - Cédula de extranjería",
+  "PA - Pasaporte",
+  "TI - Tarjeta de Identidad",
+  "CD - Carnet Diplomático",
+  "PEP - Permiso Especial de Permanencia",
+]);
 
 const data = ref({
   givenName: user.value?.given_name,
-  familyName:  user.value?.family_name,
+  familyName: user.value?.family_name,
   tipo_documento: user.value?.numero_documento,
   numero_documento: user.value?.numero_documento,
   birthdate: user.value?.birthdate,
@@ -37,40 +34,39 @@ const data = ref({
   phone_number: user.value?.phone_number,
 });
 
-
 const interview = ref({
   isVerified: false,
-  description: ''
-})
+  description: "",
+});
 
 const submit = async () => {
-  const { errors } = await client.models.Interviews.create({
-    interviewsId: "",
+  isLoading.value = true
+  const { error } = await useCreateInterview({
     userId: route.params?.id.toString() || "",
     isVerified: interview.value.isVerified,
-    description: interview.value.description
-  })
-  if (!errors) {
+    description: interview.value.description,
+  });
+  if (!error.value) {
     toast("Entrevista Creada con Exito!", {
-      "theme": "colored",
-      "type": "success",
-      "dangerouslyHTMLString": true
-    })
+      theme: "colored",
+      type: "success",
+      dangerouslyHTMLString: true,
+    });
     await navigateTo({
-      path: "/users/detail/" + route.params?.id.toString() || ""
-    })
+      path: "/users/detail/" + route.params?.id.toString() || "",
+    });
   } else {
+    isLoading.value = false;
     toast("Error, Intenta Nuevamente!", {
-      "theme": "colored",
-      "type": "error",
-      "dangerouslyHTMLString": true
-    })
+      theme: "colored",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
   }
-}
-
-
+};
 </script>
 <template>
+  <loading :isLoading="status == 'pending' || isLoading" />
   <div class="w-full h-full p-8 overflow-y-scroll flex">
     <div class="w-9/12 mx-auto">
       <div class="flex items-center pt-8">
@@ -82,7 +78,7 @@ const submit = async () => {
         </div>
       </div>
       <div class="py-8">
-        <v-form  @submit.prevent="submit" class="pt-4 flex flex-col gap-4">
+        <v-form @submit.prevent="submit" class="pt-4 flex flex-col gap-4">
           <div>
             <h4 class="font-bold text-2xl pb-4">Información personal</h4>
             <div class="grid lg:grid-cols-2 gap-x-4">
@@ -160,11 +156,17 @@ const submit = async () => {
             <h4 class="font-bold text-2xl pb-4">Hallazgos</h4>
             <div class="">
               <div class="flex gap-2">
-                <v-checkbox v-model="interview.isVerified" label="Admitido"></v-checkbox>
-               
+                <v-checkbox
+                  v-model="interview.isVerified"
+                  label="Admitido"
+                ></v-checkbox>
               </div>
 
-              <v-textarea v-model="interview.description" label="Descripcion" variant="outlined"></v-textarea>
+              <v-textarea
+                v-model="interview.description"
+                label="Descripcion"
+                variant="outlined"
+              ></v-textarea>
             </div>
           </div>
 

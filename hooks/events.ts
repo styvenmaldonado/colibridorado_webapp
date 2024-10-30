@@ -8,6 +8,26 @@ interface UseListParams {
   q?: string;
 }
 
+
+export async function useCreateEvent(event: EventInteface) {
+  return useAsyncData<EventInteface>("eventcrete", () =>
+    $fetch("/api/events/create", {
+      method: "POST",
+      body: event,
+    })
+  );
+}
+
+export async function useUpdateEvent(event: EventInteface) {
+  return useAsyncData<EventInteface>("updatecrete", () =>
+    $fetch("/api/events/update", {
+      method: "POST",
+      body: event,
+    })
+  );
+}
+
+
 export async function useListEvents(params: UseListParams) {
   let token = (await fetchAuthSession()).tokens?.accessToken.toString()
 

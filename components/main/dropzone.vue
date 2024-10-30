@@ -6,16 +6,23 @@ import { MimeTypeToExtention } from "~/libs/MimeType";
 
 const emits = defineEmits(["submit"]);
 
-const files: Ref<File[]> = ref([]);
+const props = defineProps<{
+  files?: string[];
+}>();
+
+const _files: Ref<Array<File | string>> = ref(props.files || []);
 const loading: Ref<boolean> = ref(false);
-const runtimeConfig = useRuntimeConfig();
 
 const { getRootProps, getInputProps, ...rest } = useDropzone({ onDrop });
+
 function onDrop(acceptFiles: File[], rejectReasons: FileRejectReason[]) {
-  files.value = [...files.value, ...acceptFiles];
+  _files.value = [..._files.value, ...acceptFiles];
 }
 
-const view = (file: File) => {
+const view = (file: File | string) => {
+  if (typeof file == "string") {
+    return "https://d334a63s5wk7yh.cloudfront.net/" + file;
+  }
   return URL.createObjectURL(file);
 };
 
@@ -30,19 +37,22 @@ async function convertToBase64(file: File): Promise<string> {
 
 const uploadFiles = async () => {
   loading.value = true;
-  const photos: string[] = files.value.map((file, index) => {
-    const id: string = `media/${uuidv4()}.${MimeTypeToExtention(file.type)}`;
-    convertToBase64(file).then((base64) => {
-      fetch("/api/s3", {
-        body: JSON.stringify({
-          id,
-          base64,
-          'Content-Type': file.type
-        }),
-        method: "POST",
+  const photos: string[] = _files.value.map((file, index) => {
+    if (typeof file !== "string") {
+      const id: string = `media/${uuidv4()}.${MimeTypeToExtention(file.type)}`;
+      convertToBase64(file).then((base64) => {
+        fetch("/api/s3", {
+          body: JSON.stringify({
+            id,
+            base64,
+            "Content-Type": file.type,
+          }),
+          method: "POST",
+        });
       });
-    });
-    return id;
+      return id;
+    }
+    return file;
   });
   emits("submit", photos);
   loading.value = false;
@@ -60,14 +70,14 @@ const uploadFiles = async () => {
   </div>
   <div>
     <div class="grid grid-cols-2 gap-4 my-4">
-      <div class="relative" v-for="(file, index) in files" :key="index">
+      <div class="relative" v-for="(file, index) in _files" :key="index">
         <img
           class="w-full h-96 object-cover rounded-lg border-2 border-gray-200"
           :src="view(file)"
         />
         <div class="absolute right-0 top-0 p-4">
           <button
-            @click="() => (files = files.filter((c, i) => i !== index))"
+            @click="() => (_files = _files.filter((c, i) => i !== index))"
             class="flex h-12 w-12 rounded-full bg-black border-gray-400 shadow-xl"
           >
             <v-icon class="m-auto text-white">mdi-close</v-icon>
@@ -90,7 +100,7 @@ const uploadFiles = async () => {
       </div>
     </div>
     <button
-      v-if="files.length"
+      v-if="_files.length"
       @click="uploadFiles"
       class="bg-blue-600 text-white w-full py-3 rounded-lg my-4"
     >

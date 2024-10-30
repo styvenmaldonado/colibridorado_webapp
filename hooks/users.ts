@@ -48,11 +48,21 @@ export async function useUserInfo() {
 }
 
 
-export function useUpdateUser(id: string) {
+export function useCreateUser(user: UsersInterface) {
+  return useAsyncData("userupdate", () =>
+    $fetch("/api/users/create", {
+      method: "POST",
+      body: user,
+    })
+  );
+}
+
+
+export function useUpdateUser(user: UsersInterface) {
   return useAsyncData("userupdate", () =>
     $fetch("/api/users/update", {
       method: "POST",
-      body: { id },
+      body: user,
     })
   );
 }

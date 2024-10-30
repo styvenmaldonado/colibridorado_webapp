@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { client } from "~/libs/AmplifyDataClient";
 import { ref } from "vue";
 import { v4 as uuidv4 } from "uuid";
 
@@ -13,23 +12,19 @@ import outputs from "../../amplify_outputs.json";
 
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import { useListUserTypes } from "~/hooks/userTypes";
+import { useCreateEvent } from "~/hooks/events";
 
 Amplify.configure(outputs);
 
-const { data: usersTypes, status } = await useAsyncData(
-  "usersTypes",
-  async () => {
-    const { data } = await client.models.UsersTypes.list();
-    return data;
-  }
-);
+const { data: usersTypes, status } = await useListUserTypes()
 
 const step = ref(1);
 const files = ref([]);
 const loading = ref(false);
 const data: EventInteface = reactive({
   photos: [],
-  cost: usersTypes.value?.map((c) => ({
+  cost: usersTypes.value?.data.map((c) => ({
     id: c.id,
     userType: c.name,
     usd: 0,
@@ -62,7 +57,7 @@ const submitPhotos = async (photos: string[]) => {
 
 const submit = async () => {
   const id = uuidv4()
-  const { errors } = await client.models.Events.create({
+  const { error } = await useCreateEvent({
     id,
     eventId: id ,
     name: data.name,
@@ -74,12 +69,12 @@ const submit = async () => {
     location: data.location,
     location_link: data.location_link,
     type: data.type,
-    cost: JSON.stringify([data.cost]),
+    cost: JSON.stringify(data.cost),
     cost_interview: JSON.stringify(cost_interview.value),
     percent_advance_payment: data.percent_advance_payment,
     instruction:JSON.stringify(instructions.value)
-  });
-  if (!errors) {
+  })
+  if (!error.value) {
     toast("Evento Creado con Exito!", {
       theme: "colored",
       type: "success",

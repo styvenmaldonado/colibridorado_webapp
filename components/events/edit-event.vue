@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { client } from "~/libs/AmplifyDataClient";
 import { ref } from "vue";
 import { v4 as uuidv4 } from "uuid";
 
@@ -13,62 +12,54 @@ import outputs from "../../amplify_outputs.json";
 
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-import type { CostEventInterviewInterface } from "~/inteface/CostEventInterface";
+import { useListUserTypes } from "~/hooks/userTypes";
+import { useCreateEvent, useGetEvent, useUpdateEvent } from "~/hooks/events";
 
 Amplify.configure(outputs);
 
-const route = useRoute()
+const route = useRoute();
 
-const { data: usersTypes, status:  statusUsersTypes } = await useAsyncData(
-  "usersTypes",
-  async () => {
-    const { data } = await client.models.UsersTypes.list();
-    return data;
-  }
-);
-
-
-const { data: event, status: statusEvent } = await useAsyncData(
-  "event-"+ route.query.id?.toString(),
-  async () => {
-    const { data } = await client.models.Events.get({
-      id: route.query.id?.toString() || ""
-    });
-    return data;
-  }
-);
-
-console.log(event)
+const { data: usersTypes, status } = await useListUserTypes();
+const { data: event } = await useGetEvent(route.query?.id?.toString() || "");
 
 const step = ref(1);
 const files = ref([]);
 const loading = ref(false);
+
+const formatDate = (d: Date) => {
+  const month = d.getMonth() < 9 ? "0" + d.getMonth() + 1 : d.getMonth() + 1;
+  const date = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+  const hours = d.getHours() < 10 ? "0" + d.getHours() : d.getHours();
+  const minutes = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();;
+  return `${d.getFullYear()}-${month}-${date}T${hours}:${minutes}`;
+};
+
 const data: EventInteface = reactive({
-  datetime_start: new Date(event.value?.datetime_start).toDateString(),
-  datetime_end: event.value?.datetime_end,
-  type: event.value?.type,
+  datetime_start: formatDate(new Date(event.value?.datetime_start || "")),
+  datetime_end: formatDate(new Date(event.value?.datetime_end || "")),
   name: event.value?.name,
+  type: event.value?.type,
   location: event.value?.location,
+  location_link: event.value?.location_link,
+  cancelPolicy: event.value?.cancelPolicy,
   description: event.value?.description,
   photos: [],
-  cost: usersTypes.value?.map((c) => ({
-    id: c.id,
-    userType: c.name,
-    usd: 0,
-    cop: 0,
-    mxn: 0,
-  })),
+  percent_advance_payment: event.value?.percent_advance_payment,
+  cost: JSON.parse(event.value?.cost?.toString() || ""),
 });
 
-const cost_interview:Ref<CostEventInterviewInterface> = ref({
-  cop: 0,
-  usd: 0,
-  mxn: 0
+
+const c = JSON.parse(event.value?.cost_interview?.toString() || "")
+const cost_interview = ref({
+  cop: c?.cop,
+  usd: c?.usd,
+  mxn: c?.mxn,
 });
 
+const i = JSON.parse(event.value?.instruction?.toString() || "")
 const instructions = ref({
-  instructions: "",
-  recommendations: "",
+  instructions: i?.instructions,
+  recommendations: i?.recommendations,
 });
 
 const nextStep = async (event: SubmitEventPromise) => {
@@ -83,10 +74,9 @@ const submitPhotos = async (photos: string[]) => {
 };
 
 const submit = async () => {
-  loading.value = true;
-  const { errors } = await client.models.Events.update({
-    id:  route.query.id?.toString() || "",
-    eventId:  route.query.id?.toString() || "",
+  const id = uuidv4();
+  const { error } = await useUpdateEvent({
+    id: route.query?.id?.toString() || "",
     name: data.name,
     photos: data.photos,
     datetime_start: new Date(data?.datetime_start || "").toISOString(),
@@ -94,13 +84,14 @@ const submit = async () => {
     description: data.description,
     cancelPolicy: data.cancelPolicy,
     location: data.location,
+    location_link: data.location_link,
     type: data.type,
-    cost: JSON.stringify([data.cost]),
-    cost_interview: JSON.stringify(cost_interview),
-    instructions: JSON.stringify(instructions),
+    cost: JSON.stringify(data.cost),
+    cost_interview: JSON.stringify(cost_interview.value),
+    percent_advance_payment: data.percent_advance_payment,
+    instruction: JSON.stringify(instructions.value),
   });
-  console.log(errors);
-  if (!errors) {
+  if (!error.value) {
     toast("Evento Creado con Exito!", {
       theme: "colored",
       type: "success",
@@ -120,7 +111,7 @@ const submit = async () => {
 </script>
 <template>
   <div
-    v-if="statusEvent == 'pending' || statusUsersTypes== 'pending' || loading"
+    v-if="status == 'pending' || loading"
     style="z-index: 9999"
     class="fixed w-screen h-screen bg-gray-600 opacity-45 flex"
   >
@@ -135,7 +126,7 @@ const submit = async () => {
           <button @click="navigateTo('/events')" class="w-12">
             <v-icon size="large">mdi-arrow-left</v-icon>
           </button>
-          <h1 class="text-4xl font-bold">Editar {{ event?.name }}</h1>
+          <h1 class="text-4xl font-bold">Editar Evento o Ceremonia</h1>
         </div>
       </div>
       <div class="py-8">
@@ -188,13 +179,30 @@ const submit = async () => {
                   required
                   variant="outlined"
                   v-model="data.location"
-                  label="Localización"
+                  label="Ubicación"
+                ></v-text-field>
+                <v-text-field
+                  prepend-inner-icon="mdi-map-marker"
+                  :rules="[() => !!data.location_link || 'Campo requerido']"
+                  required
+                  variant="outlined"
+                  v-model="data.location_link"
+                  label="Link Google Maps"
                 ></v-text-field>
                 <v-textarea
                   v-model="data.description"
                   label="Descripción Retiro y/o Ceremonia"
                   variant="outlined"
                 ></v-textarea>
+                <v-textarea
+                  v-model="data.cancelPolicy"
+                  label="Políticas de cancelación"
+                  variant="outlined"
+                ></v-textarea>
+                <div class="py-5 flex gap-2">
+                  <v-icon>mdi-lock-plus-outline</v-icon>
+                  <p class="font-bold">Información Privada</p>
+                </div>
                 <v-textarea
                   v-model="instructions.instructions"
                   label="Instrucción Retiro y/o Ceremonia"
@@ -203,11 +211,6 @@ const submit = async () => {
                 <v-textarea
                   v-model="instructions.recommendations"
                   label="Recomendación Retiro y/o Ceremonia"
-                  variant="outlined"
-                ></v-textarea>
-                <v-textarea
-                  v-model="data.cancelPolicy"
-                  label="Políticas de cancelación"
                   variant="outlined"
                 ></v-textarea>
               </div>
@@ -221,7 +224,7 @@ const submit = async () => {
           </template>
           <template v-slot:item.2>
             <div class="py-4">
-              <dropzone @submit="submitPhotos" />
+              <dropzone :files="event?.photos" @submit="submitPhotos" />
             </div>
             <button
               @click="step++"
@@ -272,7 +275,6 @@ const submit = async () => {
                 label="Precio Entrevista"
               ></v-text-field>
             </div>
-
             <v-form @submit.prevent="submit" class="pt-4 flex flex-col gap-4">
               <div
                 v-for="(c, index) in data.cost"

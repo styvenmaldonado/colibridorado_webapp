@@ -31,9 +31,7 @@ watch(
                 </div>
             </div>
             <div class="py-4 flex gap-2">
-                <v-text-field v-model="model.q" variant="outlined" prepend-inner-icon="mdi-magnify" label="Buscar"></v-text-field>
-                <v-select label="Tipo Usuario" :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
-                    variant="outlined"></v-select>
+                <v-text-field v-model="model.q" variant="outlined" prepend-inner-icon="mdi-magnify" label="Buscar Nombre o Lugar"></v-text-field>
             </div>
             <table-events></table-events>
         </div>

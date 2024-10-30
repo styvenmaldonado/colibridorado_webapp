@@ -12,6 +12,8 @@ import { VPhoneInput } from "v-phone-input";
 import type { SubmitEventPromise } from "vuetify";
 import { getCountryDataList } from "countries-list";
 import { client } from "../libs/AmplifyDataClient";
+import { useCreateUser } from "~/hooks/users";
+import { useListUserTypes } from "~/hooks/userTypes";
 
 Amplify.configure(outputs);
 
@@ -68,7 +70,9 @@ const onSubmit = async (event: SubmitEventPromise) => {
         },
       },
     });
-    await client.models.Users.create({
+    const { data: userTypeList } = await useListUserTypes();
+
+    await useCreateUser({
       id: userId || "",
       userId: userId || "",
       phone_number: state.value.phone, // E.164 number convention
@@ -81,6 +85,9 @@ const onSubmit = async (event: SubmitEventPromise) => {
       tipo_documento: state.value.tipo_documento,
       numero_documento: state.value.numero_documento,
       email: state.value.email,
+      rol: JSON.stringify([
+        userTypeList.value?.data.find((p) => p.isDefault == true),
+      ]),
     });
     await navigateTo({ path: "/OTP", query: { email: state.value.email } });
   } catch (error) {

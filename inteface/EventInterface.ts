@@ -11,6 +11,11 @@ export interface EventInteface {
   photos: string[];
   cancelPolicy?: string;
   cost: CostEventInterface[] | undefined;
+  cost_interview: CostEventInterface[] | undefined;
   type?: string;
   percent_advance_payment?: number;
+  instruction?: {
+    instructions:string,
+    recommendations:string
+  }
 }

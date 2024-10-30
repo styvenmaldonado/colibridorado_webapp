@@ -11,9 +11,11 @@ const model = reactive({
 });
 
 const loadItems = async () => {
+  model.loading = true
   const { data } = await useListEvents({ q: undefined });
   // @ts-ignore
   model.serverItems = data.value?.data;
+  model.loading = false
 }
 
 const handleClick = async (e: PointerEvent, row: any) => {
@@ -34,6 +36,7 @@ watch(
 
 </script>
 <template>
+  <loading :isLoading="model.loading"/>
   <v-data-table-server
     v-model:items-per-page="model.itemsPerPage"
     :headers="[

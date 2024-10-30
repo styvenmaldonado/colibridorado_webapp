@@ -1,52 +1,43 @@
 <script setup lang="ts">
-import { client } from "~/libs/AmplifyDataClient";
 import { format } from "date-fns";
 import { toast } from "vue3-toastify";
+import { useDeleteInterview, useListInterview } from "~/hooks/interviews";
 
 const itemsPerPage = 50;
 const serverItems = ref();
-const loading = ref(false);
+const isLoading = ref(false);
 const totalItems = ref();
 const dialog = ref(false);
 
 const loadItems = async () => {
-  loading.value = true;
+  isLoading.value = true;
   const route = useRoute();
-  const { data } = await client.models.Interviews.list({
-    filter: {
-      userId: {
-        eq: route.params.id.toString() || "",
-      },
-    },
-  });
+  const { data } = await useListInterview(route.params.id.toString() || "");
   //@ts-ignore
-  serverItems.value = data;
-  loading.value = false;
+  serverItems.value = data.value?.data;
+  isLoading.value = false;
 };
 
-const deleteInterview= async (value:number) => {
-  const router = useRouter()
-   
-   const { errors } = await client.models.Interviews.delete({
-     id: value.toString(),
-   });
-   dialog.value = false;
-   if (!errors) {
-     toast("Registro de Entrevista Eliminado con Exito!", {
-       theme: "colored",
-       type: "success",
-       dangerouslyHTMLString: true,
-     });
-   } else {
-     toast("Error, Intenta Nuevamente!", {
-       theme: "colored",
-       type: "error",
-       dangerouslyHTMLString: true,
-     });
-   }
-}
+const deleteInterview = async (value: number) => {
+  const { error } = await useDeleteInterview(value.toString());
+  dialog.value = false;
+  if (!error.value) {
+    toast("Registro de Entrevista Eliminado con Exito!", {
+      theme: "colored",
+      type: "success",
+      dangerouslyHTMLString: true,
+    });
+  } else {
+    toast("Error, Intenta Nuevamente!", {
+      theme: "colored",
+      type: "error",
+      dangerouslyHTMLString: true,
+    });
+  }
+};
 </script>
 <template>
+
   <v-data-table-server
     v-model:items-per-page="itemsPerPage"
     :headers="[
@@ -63,7 +54,7 @@ const deleteInterview= async (value:number) => {
     ]"
     :items="serverItems"
     :items-length="totalItems"
-    :loading="loading"
+    :loading="isloading"
     item-value="name"
     @update:options="loadItems"
   >
@@ -94,7 +85,8 @@ const deleteInterview= async (value:number) => {
           </span>
           <div class="border border-gray-200"></div>
           <span
-            >¿Estas seguro que quieres eliminar de la base de datos el registro de entrevista?</span
+            >¿Estas seguro que quieres eliminar de la base de datos el registro
+            de entrevista?</span
           >
           <div class="border border-gray-200"></div>
           <div class="flex gap-3">
