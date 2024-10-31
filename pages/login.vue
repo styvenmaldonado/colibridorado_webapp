@@ -1,102 +1,111 @@
 <script setup lang="ts">
 definePageMeta({ middleware: "guest" });
 import { Amplify } from "aws-amplify";
+import { signOut, signIn } from "aws-amplify/auth";
 import outputs from "../amplify_outputs.json";
+import "vue3-toastify/dist/index.css";
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import Toast from "vue3-toastify";
 Amplify.configure(outputs);
 
-import { signIn, signOut } from "aws-amplify/auth";
-import { ref } from "vue";
-import "vue3-toastify/dist/index.css";
+const router = useRouter();
 
-const credentials = ref({
-  username: "",
-  password: "",
+const state = reactive({
+  credentials: {
+    username: "",
+    password: ""
+  },
+  isLoading: false,
+  showPassword: false,
+  loginError: ""
 });
 
-const state = ref("");
-const isLoading = ref(false);
-const show1 = ref(false);
-const onSubmit = async () => {
+const resetPassword = () => {
+  state.credentials.password = "";
+};
+
+const handleSignIn = async () => {
   try {
-    isLoading.value = true;
+    state.isLoading = true;
     await signOut();
     await signIn({
-      username: credentials.value.username,
-      password: credentials.value.password,
+      username: state.credentials.username,
+      password: state.credentials.password,
     });
-    await navigateTo("/");
+    await router.push("/");
   } catch (error) {
-    isLoading.value = false;
     console.log(error);
-    state.value = "error";
-    credentials.value.password = "";
+    state.loginError = "Usuario y/o contraseña inválidos";
+    resetPassword();
+  } finally {
+    state.isLoading = false;
   }
 };
 </script>
 
 <template>
-  <loading :isLoading="isLoading"/>
+  <loading :is-loading="state.isLoading"/>
   <div class="flex flex-col w-screen h-screen">
     <div class="h-44 lg:h-60 relative">
       <div class="absolute w-full h-full flex">
         <div
-          class="flex w-28 h-28 lg:w-36 lg:h-36 rounded-full shadow-lg m-auto bg-white"
+            class="flex w-28 h-28 lg:w-36 lg:h-36 rounded-full shadow-lg m-auto bg-white"
         >
           <img
-            class="m-auto h-24 w-24 lg:w-32 lg:h-32 object-cover"
-            src="/logo.webp"
+              class="m-auto h-24 w-24 lg:w-32 lg:h-32 object-cover"
+              src="/logo.webp"
           />
         </div>
       </div>
       <img class="h-full w-full object-fill" src="/background.webp" />
     </div>
     <div
-      class="bg-white pt-10 lg:pt-0 lg:m-auto lg:w-3/6 flex lg:rounded-lg lg:shadow-lg lg:border lg:border-gray-300"
+        class="bg-white pt-10 lg:pt-0 lg:m-auto lg:w-3/6 flex lg:rounded-lg lg:shadow-lg lg:border lg:border-gray-300"
     >
       <div class="px-5 lg:w-11/12 lg:py-8 mx-auto">
-        <h1 class="text-2xl text-violet-950 font-black">Iniciar Sesion</h1>
-        <span
-          >Bienllegad@ a la Familia Colibrí Dorado, un espacio de sanación desde
+        <h1 class="text-2xl text-violet-950 font-black">Iniciar Sesión</h1>
+        <span>Bienvenid@ a la Familia Colibrí Dorado, un espacio de sanación desde
           la frecuencia cuántica del amor.
         </span>
-        <v-form @submit.prevent="onSubmit" class="pt-4 flex flex-col gap-y-2">
+        <v-form @submit.prevent="handleSignIn" class="pt-4 flex flex-col gap-y-2">
           <v-text-field
-            :rules="[() => !!credentials.username || 'Campo requerido']"
-            required
-            prepend-inner-icon="mdi-email"
-            variant="outlined"
-            v-model="credentials.username"
-            label="Email"
-            type="email"
+              :rules="[() => !!state.credentials.username || 'Campo requerido']"
+              required
+              prepend-inner-icon="mdi-email"
+              variant="outlined"
+              v-model="state.credentials.username"
+              label="Email"
+              type="email"
           ></v-text-field>
           <v-text-field
-            :rules="[() => !!credentials.password || 'Campo requerido']"
-            required
-            persistent-hint
-            :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-            @click:append-inner="show1 = !show1"
-            :type="show1 ? 'text' : 'password'"
-            prepend-inner-icon="mdi-lock-outline"
-            variant="outlined"
-            v-model="credentials.password"
-            label="Contraseña"
+              :rules="[() => !!state.credentials.password || 'Campo requerido']"
+              required
+              persistent-hint
+              :append-inner-icon="state.showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append-inner="state.showPassword = !state.showPassword"
+              :type="state.showPassword ? 'text' : 'password'"
+              prepend-inner-icon="mdi-lock-outline"
+              variant="outlined"
+              v-model="state.credentials.password"
+              label="Contraseña"
           ></v-text-field>
           <div
-            v-if="state == 'error'"
-            class="text-red-600 flex gap-2 p-4 bg-red-50 rounded-lg border-2 border-red-700"
+              v-if="state.loginError"
+              class="text-red-600 flex gap-2 p-4 bg-red-50 rounded-lg border-2 border-red-700"
           >
             <div><v-icon>mdi-alert-circle</v-icon></div>
-            <span>Usuario y/o contraseña invalidos</span>
+            <span>{{ state.loginError }}</span>
           </div>
           <div class="flex mb-6">
             <NuxtLink
-              to="/forgot-password"
-              class="text-fuchsia-900 ml-auto font-bold"
-              >¿Olvidaste tu contraseña?
+                to="/forgot-password"
+                class="text-fuchsia-900 ml-auto font-bold"
+            >¿Olvidaste tu contraseña?
             </NuxtLink>
           </div>
           <button
-            class="bg-gradient-to-r from-fuchsia-900 to-violet-950 text-white font-bold py-4 w-full rounded-lg"
+              class="bg-gradient-to-r from-fuchsia-900 to-violet-950 text-white font-bold py-4 w-full rounded-lg"
           >
             Inicia el vuelo
           </button>
@@ -107,7 +116,7 @@ const onSubmit = async () => {
       <div class="m-auto">
         ¿Aún no tienes cuenta?
         <NuxtLink class="text-fuchsia-900 font-bold" to="/registrate">
-          Registrate</NuxtLink
+          Regístrate</NuxtLink
         >
       </div>
     </div>

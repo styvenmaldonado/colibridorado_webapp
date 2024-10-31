@@ -11,13 +11,14 @@ import { VPhoneInput } from "v-phone-input";
 
 import type { SubmitEventPromise } from "vuetify";
 import { getCountryDataList } from "countries-list";
-import { client } from "../libs/AmplifyDataClient";
+
 import { useCreateUser } from "~/hooks/users";
 import { useListUserTypes } from "~/hooks/userTypes";
+import { toast } from "vue3-toastify";
 
 Amplify.configure(outputs);
 
-const loading = ref(false);
+const isLoading = ref(false);
 
 const state = ref({
   list_countries: getCountryDataList().map((c) => c.name),
@@ -54,7 +55,7 @@ const onSubmit = async (event: SubmitEventPromise) => {
   try {
     const { valid } = await event;
     if (!valid) return;
-    loading.value = true;
+    isLoading.value = true;
     const { userId, isSignUpComplete, nextStep } = await signUp({
       username: state.value.email,
       password: state.value.password,
@@ -89,15 +90,20 @@ const onSubmit = async (event: SubmitEventPromise) => {
         userTypeList.value?.data.find((p) => p.isDefault == true),
       ]),
     });
-    await navigateTo({ path: "/OTP", query: { email: state.value.email } });
+    await navigateTo({ path: "/login" });
+    //await navigateTo({ path: "/OTP", query: { email: state.value.email } });
   } catch (error) {
-    loading.value = false;
-    console.log(error);
+    isLoading.value = false;
+    toast("Error, Intenta Nuevamente!", {
+      theme: "colored",
+      type: "error",
+      dangerouslyHTMLString: true,
+    })
   }
 };
 </script>
 <template>
-  <loading :isLoading="loading" />
+  <loading :isLoading="isLoading" />
   <div class="flex flex-col w-screen h-screen">
     <div class="h-44 lg:h-60 relative">
       <div class="absolute w-full h-full flex">
@@ -121,7 +127,6 @@ const onSubmit = async (event: SubmitEventPromise) => {
           >Crea tu cuenta en 2 pasos. Llena estos datos sólo una vez y ya
           quedarás registrad@ en la plataforma.</span
         >
-        {{ state.phone }}
         <v-stepper
           alt-labels
           v-model="state.step"

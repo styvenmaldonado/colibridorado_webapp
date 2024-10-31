@@ -72,6 +72,8 @@ watchEffect(async () => {
           </p>
         </div>
 
+
+
         <!-- Events Section -->
         <div class="text-lg pt-6">
           <span class="font-bold"></span>
@@ -82,6 +84,13 @@ watchEffect(async () => {
         </div>
       </div>
 
+      
+      <!-- Mensaje de que no hay eventos disponibles -->
+      <div v-if="!eventList?.value?.data || eventList.value.data.length === 0"
+           class="px-4 py-12 bg-blue-100 mx-5 my-6 flex gap-3 items-center rounded-lg">
+        <v-icon class="text-blue-500">mdi-information</v-icon>
+        <p>No hay Eventos Disponibles</p>
+      </div>
       <!-- Ceremonies List -->
       <div v-if="eventList?.value?.data?.some(event => event.type === 'Ceremonia')">
         <div class="text-lg pt-8 px-5">
@@ -139,3 +148,4 @@ watchEffect(async () => {
     />
   </div>
 </template>
+
