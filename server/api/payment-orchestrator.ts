@@ -86,6 +86,7 @@ export default defineEventHandler(async (event) => {
     method: "ELECTRONIC_TRANSFER", // CASH - ELECTRONIC_TRANSFER
     datetime: new Date(Date.now()).toISOString(),
     eventUsersId,
+    userId: body.userId,
   });
 
   return {

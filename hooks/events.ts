@@ -1,5 +1,5 @@
 import { getCurrentUser } from "aws-amplify/auth";
-import type { EventInteface } from "~/inteface/EventInterface";
+import type { EventInteface } from "~/inteface/EventsInterface";
 import type { UsersInterface } from "~/inteface/UsersInterface";
 import { fetchAuthSession } from 'aws-amplify/auth';
 

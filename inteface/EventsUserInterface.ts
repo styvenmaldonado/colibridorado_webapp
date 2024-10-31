@@ -1,4 +1,4 @@
-import type { EventInteface } from "./EventInterface"
+import type { EventInteface } from "./EventsInterface"
 import type { UsersInterface } from "./UsersInterface"
 
 export interface EventsUserInterface {

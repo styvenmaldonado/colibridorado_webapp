@@ -7,19 +7,28 @@ import {
 export default defineEventHandler(async (event) => {
   const { offset, limit, eventId, userId } = getQuery(event);
 
-  const EventsUser = await getAllEventUsers({ eventId, userId });
-  const Users = await getAllUsers();
-  const Events = await getAllEvents();
+  const [eventUsers, users, events] = await Promise.all([
+    getAllEventUsers({ eventId, userId }),
+    getAllUsers(),
+    getAllEvents()
+  ]);
 
-  const response = EventsUser?.map((c) => ({
-    ...c,
-    events: Events?.find((p) => p.id == c.eventId),
-    users: Users?.find((p) => p.id == c.userId),
+  const usersMap = new Map(users.map(user => [user.id, user]));
+  const eventsMap = new Map(events.map(event => [event.id, event]));
+
+  const response = eventUsers?.map(eventUser => ({
+    ...eventUser,
+    events: eventsMap.get(eventUser.eventId),
+    users: usersMap.get(eventUser.userId)
   }));
+
+  const start = offset ?? 0;
+  const end = (offset ?? 0) + (limit ?? 50);
+  const slicedData = response.slice(start, end);
 
   return {
     count: response?.length,
-    data: response,
+    data: slicedData,
   };
 });
 

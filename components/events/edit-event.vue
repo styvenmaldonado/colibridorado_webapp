@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 //Types
 import type { SubmitEventPromise } from "vuetify";
-import type { EventInteface } from "~/inteface/EventInterface";
+import type { EventInteface } from "~/inteface/EventsInterface";
 
 //Amplify
 import { Amplify } from "aws-amplify";

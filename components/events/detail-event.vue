@@ -84,7 +84,7 @@ const dialog = ref(false)
             </v-tabs>
             <v-tabs-window v-model="tab">
                 <v-tabs-window-item value="interviews">
-                    <users-tab></users-tab>
+                    <table-users-events />
                 </v-tabs-window-item>
                 <v-tabs-window-item value="payments">
                     <table-payments-events />
