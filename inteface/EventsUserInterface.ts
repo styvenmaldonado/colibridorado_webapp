@@ -1,3 +1,6 @@
+import type { EventInteface } from "./EventInterface"
+import type { UsersInterface } from "./UsersInterface"
+
 export interface EventsUserInterface {
     id?: string,
     eventUsersId?: string,
@@ -8,4 +11,6 @@ export interface EventsUserInterface {
     userId: string
     medicalPreincription: string,
     rol:string
+    user?:UsersInterface
+    events?:EventInteface
 }
