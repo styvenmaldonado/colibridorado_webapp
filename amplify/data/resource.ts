@@ -100,6 +100,7 @@ const schema = a.schema({
       info: a.json(),
       value: a.float(),
       userId: a.string(),
+      eventId: a.string(),
       eventUsersId: a.string(),
       users: a.belongsTo("Users","userId"),
       eventUsers: a.belongsTo("EventsUser","eventUsersId")

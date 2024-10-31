@@ -87,6 +87,7 @@ export default defineEventHandler(async (event) => {
     datetime: new Date(Date.now()).toISOString(),
     eventUsersId,
     userId: body.userId,
+    eventId: body.eventId
   });
 
   return {
