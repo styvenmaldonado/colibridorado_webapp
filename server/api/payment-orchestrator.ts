@@ -6,61 +6,52 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const body = await readBody(event);
 
-  //Get Current Event
-  const { data: currentEvent } = await client.models.Events.get({
-    id: body.eventId,
-  });
-  //List Interviews
-  const { data: interviews } = await client.models.Interviews.list({
-    filter: {
-      userId: {
-        eq: body.userId,
-      },
-    },
-  });
+// Fetch Current Event and Interviews in parallel
+  const [currentEventResponse, interviewsResponse] = await Promise.all([
+    client.models.Events.get({ id: body.eventId }),
+    client.models.Interviews.list({ filter: { userId: { eq: body.userId } } })
+  ]);
 
-  const isHasVerifiedInterviews = interviews
-    .map((c) => c.isVerified)
-    .includes(true);
+  const currentEvent = currentEventResponse.data;
+  const interviews = interviewsResponse.data;
+
+
+  const isHasVerifiedInterviews = interviews.some((interview) => interview.isVerified);
   const cost: CostEventInterface[] = JSON.parse(
-    currentEvent?.cost?.toString() || ""
+      currentEvent?.cost?.toString() || "[]"
   );
-  const cost_interview: CostEventInterface = JSON.parse(
-    currentEvent?.cost_interview?.toString() || ""
+  const costInterview: CostEventInterface = JSON.parse(
+      currentEvent?.cost_interview?.toString() || "{}"
   );
 
-  const amount = () => {
+  const calculateAmount = (): number => {
     if (isHasVerifiedInterviews) {
-      let _amount = cost?.find((p) => p.id == JSON.parse(body.rol)?.id);
+      const selectedCost = cost.find((p) => p.id === JSON.parse(body.rol).id);
       return (
-        (_amount!["cop"] * 100 * (currentEvent?.percent_advance_payment || 0)) /
-        100
+          ((selectedCost?.cop ?? 0) * (currentEvent?.percent_advance_payment ?? 0)) /
+          100
       );
     }
-    return cost_interview["cop"] * 100;
+    return costInterview.cop * 100;
   };
 
-  const id_payment = uuidv4();
-  const res: any = await $fetch("https://sandbox.wompi.co/v1/payment_links", {
+  const idPayment = uuidv4();
+  const res = await $fetch("https://sandbox.wompi.co/v1/payment_links", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${config.WOMPI_API_KEY}`,
-    },
+    headers: { Authorization: `Bearer ${config.WOMPI_API_KEY}` },
     body: {
-      name:
-        (isHasVerifiedInterviews ? "Abono: " : "Entrevista: ") +
-        currentEvent?.name, // Nombre del link de pago
-      description: currentEvent?.description, // Descripción del pago
-      sku: id_payment,
-      single_use: false, // `false` current caso de que el link de pago pueda recibir múltiples transacciones APROBADAS o `true` si debe dejar de aceptar transacciones después del primer pago APROBADO
-      collect_shipping: false, // Si deseas que el cliente inserte su información de envío current el checkout, o no
-      redirect_url: `${config.baseURL}payment-state`, // URL donde será redirigido el cliente una vez termine el proceso de pago
-      currency: "COP", //Únicamente está disponible pesos colombianos (COP) current el momento. En el futuro soportaremos mas monedas
-      amount_in_cents: amount(), // Si el pago current por un monto especifico, si no lo incluyes el pagador podrá elegir el valor a pagar
+      name: `${isHasVerifiedInterviews ? "Abono" : "Entrevista"}: ${currentEvent?.name}`,
+      description: currentEvent?.description,
+      sku: idPayment,
+      single_use: false,
+      collect_shipping: false,
+      redirect_url: `${config.baseURL}payment-state?id=${idPayment}`,
+      currency: "COP",
+      amount_in_cents: calculateAmount(),
     },
   });
 
-  //create Event User
+  // Create Event User
   const eventUsersId = uuidv4();
   await client.models.EventsUser.create({
     id: eventUsersId,
@@ -74,21 +65,21 @@ export default defineEventHandler(async (event) => {
     medicalPreincription: body.medicalPreincription,
   });
 
-
-  //Adding Payment with States to DB
-  await client.models.Payments.create({
-    id: id_payment,
-    paymentId: id_payment,
-    name: (isHasVerifiedInterviews ? "Abono: " : "Entrevista: ") +
-    currentEvent?.name,
+  // Adding Payment with States to DB
+  const paymentCreationData = {
+    id: idPayment,
+    paymentId: idPayment,
+    name: `${isHasVerifiedInterviews ? "Abono" : "Entrevista"}: ${currentEvent?.name}`,
     status: "PENDING",
-    value: amount(),
-    method: "ELECTRONIC_TRANSFER", // CASH - ELECTRONIC_TRANSFER
-    datetime: new Date(Date.now()).toISOString(),
+    value: calculateAmount(),
+    method: "ELECTRONIC_TRANSFER",
+    datetime: new Date().toISOString(),
     eventUsersId,
     userId: body.userId,
-    eventId: body.eventId
-  });
+    eventId: body.eventId,
+  };
+
+  await client.models.Payments.create(paymentCreationData);
 
   return {
     res: `https://checkout.wompi.co/l/${res?.data?.id || "00000"}`,
