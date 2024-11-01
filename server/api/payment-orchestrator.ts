@@ -80,6 +80,7 @@ export default defineEventHandler(async (event) => {
     eventUsersId,
     userId: body.userId,
     eventId: body.eventId,
+    payment_url: wompiURL
   };
 
   await client.models.Payments.create(paymentCreationData);
