@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
     id: idPayment,
     paymentId: idPayment,
     name: `${isHasVerifiedInterviews ? "Abono" : "Entrevista"}: ${currentEvent?.name}`,
-    status: "PENDING",
+    status: "DECLINED",
     value: calculateAmount(),
     method: "ELECTRONIC_TRANSFER",
     datetime: new Date().toISOString(),
