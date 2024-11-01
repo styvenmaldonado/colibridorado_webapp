@@ -1,4 +1,5 @@
 import type {PaymentsInterface} from "~/inteface/PaymentsInterface";
+import type {EventsUserInterface} from "~/inteface/EventsUserInterface";
 
 export function usePaymentOrchestrator(eventUser: EventsUserInterface) {
   return useAsyncData("payment-orchestrator", () => {

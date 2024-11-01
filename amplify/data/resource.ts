@@ -99,6 +99,7 @@ const schema = a.schema({
       attachment: a.string(),
       info: a.json(),
       value: a.float(),
+      payment_url: a.string(),
       userId: a.string(),
       eventId: a.string(),
       eventUsersId: a.string(),

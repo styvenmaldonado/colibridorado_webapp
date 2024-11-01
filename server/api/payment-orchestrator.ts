@@ -65,6 +65,9 @@ export default defineEventHandler(async (event) => {
     medicalPreincription: body.medicalPreincription,
   });
 
+
+  const wompiURL= `https://checkout.wompi.co/l/${res?.data?.id || "00000"}`
+
   // Adding Payment with States to DB
   const paymentCreationData = {
     id: idPayment,
