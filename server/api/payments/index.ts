@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   const eventsMap = new Map(events.map(event => [event.id, event]));
 
   const response = payments?.map(payment => ({
-    ...payment,
+    payment,
     events: eventsMap.get(payment.eventId),
     users: usersMap.get(payment.userId)
   }));
